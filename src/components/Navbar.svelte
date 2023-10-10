@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import type { PageData } from '../../routes/$types';
+	import type { PageData } from '../routes/$types';
 	import Icon from '@iconify/svelte';
-	import { triggerAction } from '../../utils/triggerAction';
+	import { triggerAction } from '../utils/triggerAction';
 
 	$: ({ session } = $page.data as PageData);
 	$: urlPath = $page.url.pathname;
