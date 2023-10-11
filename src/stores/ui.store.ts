@@ -15,6 +15,7 @@ export interface Loader {
 export interface Toast {
 	title: string;
 	type?: 'info' | 'success' | 'warning' | 'error';
+	classes?: string;
 }
 
 export interface Modal {
@@ -26,6 +27,7 @@ export interface Modal {
 export interface ModalAction {
 	name: string;
 	type?: 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
+	classes?: string;
 	onClick?: () => void | Promise<void>;
 }
 
@@ -33,6 +35,9 @@ export const ui = (() => {
 	const { subscribe, set, update } = writable<UI>({});
 
 	// Methods
+
+	const setTheme = (theme: string) => document.querySelector('html')?.setAttribute('data-theme', theme);
+
 	const showToast = (toast: Toast) => {
 		update((state) => {
 			clearInterval(state.toastInterval);
@@ -55,6 +60,7 @@ export const ui = (() => {
 		subscribe,
 		set,
 		update,
+		setTheme,
 		showToast,
 		closeToast
 	};

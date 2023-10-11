@@ -38,8 +38,8 @@
 			{#if actions}
 				<div class="modal-action">
 					{#each actions as action}
-						{@const { name, type, onClick } = action}
-						<button class="btn btn-{type} w-24" on:click={onClick ?? closeModal}>
+						{@const { name, type, classes, onClick } = action}
+						<button class="btn btn-sm btn-{type} w-24 {classes}" on:click={onClick ?? closeModal}>
 							{name}
 						</button>
 					{/each}

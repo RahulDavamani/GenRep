@@ -5,8 +5,10 @@
 	import Modal from '../components/Modal.svelte';
 	import { ui } from '../stores/ui.store';
 	import Loader from '../components/Loader.svelte';
+	import { onMount } from 'svelte';
 
 	export let data;
+	onMount(() => ui.setTheme(data.theme));
 	$: ({ loader } = $ui);
 </script>
 

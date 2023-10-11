@@ -14,9 +14,11 @@ model User {
    id    String @id @unique
    name  String
    email String @unique
+   theme String @default("light")
 
    auth_session Session[]
    key          Key[]
+   apiKeys      APIKey[]
 }
 
 model Session {
@@ -39,4 +41,14 @@ model Key {
    user User @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
    @@index([user_id])
+}
+
+model APIKey {
+   id     String @id @unique @default(nanoid())
+   name   String
+   userId String
+
+   User User @relation(fields: [userId], references: [id])
+
+   @@unique([userId, name])
 }
