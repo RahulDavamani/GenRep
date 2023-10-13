@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import { ui } from '../stores/ui.store';
+	import { ui } from '../../stores/ui.store';
 
 	let showDetails = false;
 	const closeModal = () => ($ui.modal = undefined);
@@ -38,8 +38,8 @@
 			{#if actions}
 				<div class="modal-action">
 					{#each actions as action}
-						{@const { name, type, classes, onClick } = action}
-						<button class="btn btn-sm btn-{type} w-24 {classes}" on:click={onClick ?? closeModal}>
+						{@const { name, onClick } = action}
+						<button class="btn btn-sm w-24 {action.class}" on:click={onClick ?? closeModal}>
 							{name}
 						</button>
 					{/each}

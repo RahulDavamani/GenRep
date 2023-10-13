@@ -1,10 +1,10 @@
 <script lang="ts">
 	import '../app.css';
-	import Navbar from '../components/Navbar.svelte';
-	import Toast from '../components/Toast.svelte';
-	import Modal from '../components/Modal.svelte';
+	import Navbar from './components/Navbar.svelte';
+	import Toast from './components/Toast.svelte';
+	import Modal from './components/Modal.svelte';
 	import { ui } from '../stores/ui.store';
-	import Loader from '../components/Loader.svelte';
+	import Loader from './components/Loader.svelte';
 	import { onMount } from 'svelte';
 
 	export let data;
@@ -18,11 +18,13 @@
 
 {#if loader}
 	{@const { title, overlay } = loader}
-	<Loader {title} {overlay} center />
+	<Loader {title} overlay={overlay ?? true} />
 {/if}
 
-{#if !loader || loader.overlay}
-	<slot />
+{#if !loader || loader.overlay !== false}
+	<div class="py-6">
+		<slot />
+	</div>
 {/if}
 
 <Modal />

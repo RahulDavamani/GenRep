@@ -1,7 +1,8 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import ApiKeys from './(components)/ApiKeys.svelte';
-	import Themes from './(components)/Themes.svelte';
+	import ApiKeys from './components/ApiKeys.svelte';
+	import Themes from './components/Themes.svelte';
+	import Databases from './components/Databases.svelte';
 </script>
 
 <div class="container mx-auto rounded-box shadow py-4">
@@ -16,6 +17,9 @@
 	</div>
 	<div class="divider mt-2" />
 
-	<ApiKeys />
-	<Themes />
+	<div class="px-8">
+		<Databases />
+		<ApiKeys />
+		<Themes />
+	</div>
 </div>

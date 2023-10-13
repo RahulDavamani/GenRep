@@ -2,6 +2,9 @@
 	"name": "genrep",
 	"version": "0.0.1",
 	"private": true,
+	"prisma": {
+		"schema": "src/prisma/schema.prisma"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -46,6 +49,17 @@
 		"@lucia-auth/oauth": "^3.3.1",
 		"@lucia-auth/sveltekit": "^0.6.11",
 		"@prisma/client": "^5.4.2",
-		"lucia": "^2.7.1"
+		"@trpc/client": "^10.40.0",
+		"@trpc/server": "^10.40.0",
+		"better-sqlite3": "^9.0.0",
+		"knex": "^3.0.1",
+		"lucia": "^2.7.1",
+		"mysql": "^2.18.1",
+		"mysql2": "^3.6.1",
+		"oracledb": "^6.2.0",
+		"pg": "^8.11.3",
+		"sqlite3": "^5.1.6",
+		"tedious": "^16.4.1",
+		"trpc-sveltekit": "^3.5.21"
 	}
 }

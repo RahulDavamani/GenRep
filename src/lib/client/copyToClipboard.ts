@@ -1,4 +1,4 @@
-import { ui } from '../stores/ui.store';
+import { ui } from '../../stores/ui.store';
 
 export const copyToClipboard = (text?: string | null) => {
 	navigator.clipboard.writeText(text ?? '');

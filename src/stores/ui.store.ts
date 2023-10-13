@@ -14,8 +14,7 @@ export interface Loader {
 
 export interface Toast {
 	title: string;
-	type?: 'info' | 'success' | 'warning' | 'error';
-	classes?: string;
+	class?: string;
 }
 
 export interface Modal {
@@ -26,8 +25,7 @@ export interface Modal {
 }
 export interface ModalAction {
 	name: string;
-	type?: 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error';
-	classes?: string;
+	class?: string;
 	onClick?: () => void | Promise<void>;
 }
 
@@ -44,7 +42,7 @@ export const ui = (() => {
 			return {
 				...state,
 				toast,
-				toastInterval: setInterval(() => update((state) => ({ ...state, toast: undefined })), 50000)
+				toastInterval: setInterval(() => update((state) => ({ ...state, toast: undefined })), 5000)
 			};
 		});
 	};

@@ -1,27 +1,36 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import type { UpsertApiKey } from '../(actions)/upsertApiKey';
-	import { triggerAction } from '../../../utils/triggerAction';
-	import { page } from '$app/stores';
-	import type { ActionData } from '../$types';
 	import { ui } from '../../../stores/ui.store';
+	import { trpcErrorhandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
+	import { trpc } from '../../../trpc/client';
+	import { page } from '$app/stores';
+	import { invalidateAll } from '$app/navigation';
+	import type { UpsertApiKey } from '../../../trpc/routers/apiKey.router';
 
 	export let upsertApiKey: UpsertApiKey | undefined;
-	$: form = $page.form as ActionData;
+	let errors: TRPCZodErrors = {};
 
 	const closeModal = () => {
 		upsertApiKey = undefined;
-		if (form?.upsertApiKey) form.upsertApiKey.errors = {};
+		errors = {};
 	};
 	const submit = async () => {
-		await triggerAction<UpsertApiKey>('/settings/?/upsertApiKey', upsertApiKey);
-		if (form?.upsertApiKey?.message) {
+		$ui.loader = { title: upsertApiKey?.id ? 'Updating API Key' : 'Adding API Key ' };
+		try {
+			if (!upsertApiKey) return;
+			await trpc($page).apiKey.upsert.query(upsertApiKey);
 			ui.showToast({
-				type: 'success',
-				title: upsertApiKey?.id ? 'API Updated Successfully' : 'API Key Added Successfully'
+				class: 'alert-success',
+				title: upsertApiKey?.id ? 'API Key Updated Successfully' : 'API Key Added Successfully'
 			});
+			invalidateAll();
 			closeModal();
+		} catch (e) {
+			const { code, message, zodErrors } = trpcErrorhandler(e);
+			ui.showToast({ class: 'alert-error', title: `${code}: ${message}` });
+			errors = zodErrors ?? {};
 		}
+		$ui.loader = undefined;
 	};
 </script>
 
@@ -43,8 +52,8 @@
 			<div class="form-control">
 				<div class="label font-semibold">Name</div>
 				<input type="text" placeholder="Type here" class="input input-bordered w-full" bind:value={upsertApiKey.name} />
-				{#if form?.upsertApiKey?.errors?.name}
-					<div class="label text-xs text-error">{form.upsertApiKey.errors.name}</div>
+				{#if errors.name}
+					<div class="label text-xs text-error">{errors.name.message}</div>
 				{/if}
 			</div>
 			<div class="modal-action">

@@ -2,8 +2,9 @@
 	import { page } from '$app/stores';
 	import { ui } from '../../../stores/ui.store';
 	import type { PageData } from '../$types';
-	import { triggerAction } from '../../../utils/triggerAction';
-	import type { UpdateTheme } from '../(actions)/updateTheme';
+	import { trpc } from '../../../trpc/client';
+	import { trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
+	import { invalidateAll } from '$app/navigation';
 
 	const themes = [
 		'light',
@@ -39,21 +40,29 @@
 
 	$: data = $page.data as PageData;
 
-	const updateTheme = (theme: string) => {
-		triggerAction<UpdateTheme>('/settings/?/updateTheme', { theme });
-		ui.setTheme(theme);
+	const updateTheme = async (theme: string) => {
+		try {
+			ui.setTheme(theme);
+			await trpc($page).theme.update.query({ theme });
+			invalidateAll();
+		} catch (e) {
+			const { code, message } = trpcErrorhandler(e) ?? {};
+			ui.showToast({ class: 'btn-error', title: `${code}: ${message}` });
+		}
 	};
 </script>
 
-<div class="px-8 mt-8">
+<div class="mt-10">
 	<div class="text-lg font-semibold mb-1">Themes:</div>
 
 	<div class="flex flex-wrap">
 		{#each themes as th}
-			<button
+			<!-- svelte-ignore a11y-no-static-element-interactions -->
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<div
 				data-theme={th}
-				class="card w-44 bg-base-100 my-3 lg:m-6 rounded-none cursor-pointer
-            {data.theme == th && 'outline outline-primary'}"
+				class="card w-44 bg-base-100 my-3 lg:m-6 border cursor-pointer
+            {data.theme === th && 'outline outline-primary'}"
 				on:click={() => updateTheme(th)}
 			>
 				<div class="card-body p-0">
@@ -69,7 +78,7 @@
 						</div>
 					</div>
 				</div>
-			</button>
+			</div>
 		{/each}
 	</div>
 </div>

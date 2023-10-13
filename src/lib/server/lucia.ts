@@ -2,7 +2,7 @@ import { lucia } from 'lucia';
 import { google } from '@lucia-auth/oauth/providers';
 import { sveltekit } from 'lucia/middleware';
 import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
-import { prisma } from './prisma';
+import { prisma } from '../../prisma/prisma';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 

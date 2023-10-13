@@ -18,6 +18,7 @@ model User {
 
    auth_session Session[]
    key          Key[]
+   databases    Database[]
    apiKeys      APIKey[]
 }
 
@@ -41,6 +42,32 @@ model Key {
    user User @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
    @@index([user_id])
+}
+
+model Database {
+   id               String            @id @unique @default(nanoid())
+   name             String
+   provider         String
+   connectionType   String
+   connectionString String?
+   connectionOption ConnectionOption?
+   userId           String
+
+   User User @relation(fields: [userId], references: [id])
+
+   @@unique([userId, name])
+}
+
+model ConnectionOption {
+   id           String @id @unique @default(nanoid())
+   host         String
+   port         Int
+   databaseName String
+   username     String
+   password     String
+   databaseId   String @unique
+
+   database Database @relation(fields: [databaseId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model APIKey {

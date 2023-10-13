@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import type { PageData } from '../routes/$types';
+	import type { PageData } from '../$types';
 	import Icon from '@iconify/svelte';
-	import { triggerAction } from '../utils/triggerAction';
+	import { triggerAction } from '../../lib/client/triggerAction';
 
 	$: ({ session } = $page.data as PageData);
 	$: urlPath = $page.url.pathname;
 </script>
 
-<div class="navbar shadow px-4 mb-6 flex justify-between">
+<div class="navbar shadow px-4 flex justify-between">
 	<a href="/" class="text-xl font-bold">GenRep</a>
-	<div class="flex gap-5">
-		<a href="/databases" class="btn btn-link {urlPath !== '/databases' && 'no-underline text-base-content'}">
-			Databases
+	<div class="flex gap-4">
+		<a href="/settings" class="btn btn-link {urlPath !== '/settings' && 'no-underline text-base-content'}">
+			<Icon icon="material-symbols:settings-rounded" width={24} />
 		</a>
 		<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 		<div class="dropdown dropdown-end">
