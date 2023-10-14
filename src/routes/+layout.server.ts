@@ -1,5 +1,5 @@
 export const load = async ({ locals: { session } }) => {
-	let theme = 'light';
+	let theme = 'wireframe';
 	if (session)
 		theme = (
 			await prisma.user.findUniqueOrThrow({

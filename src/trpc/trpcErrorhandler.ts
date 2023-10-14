@@ -1,4 +1,7 @@
 import { TRPCClientError } from '@trpc/client';
+import { TRPCError } from '@trpc/server';
+import { getErrorCode } from '../data/errorCodes';
+import { error } from '@sveltejs/kit';
 
 export interface TRPCZodError {
 	code: string;
@@ -20,14 +23,18 @@ export interface TRPCResponseError {
 	zodErrors?: TRPCZodErrors;
 }
 
+export const trpcServerErrorHandler = (e: unknown) => {
+	const { code, message } = trpcErrorhandler(e);
+	throw error(code, { message: message });
+};
+
 export const trpcErrorhandler = (e: unknown): TRPCResponseError => {
-	console.log(e);
 	if (e instanceof TRPCClientError) {
 		try {
 			const errors = JSON.parse(e.message);
 			if (typeof errors === 'object' && 'path' in errors[0])
 				return {
-					code: 400,
+					code: e.data.httpStatus,
 					message: 'Input Validation Error',
 					zodErrors: formatZodErrors(errors)
 				};
@@ -38,6 +45,12 @@ export const trpcErrorhandler = (e: unknown): TRPCResponseError => {
 			};
 		}
 	}
+	if (e instanceof TRPCError)
+		return {
+			code: getErrorCode({ trpc: e.code })?.http ?? 500,
+			message: e.message
+		};
+
 	return {
 		code: 500,
 		message: 'Internal Server Error'

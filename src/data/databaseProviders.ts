@@ -1,4 +1,9 @@
-export const databaseProviders = [
+export interface DatabaseProvider {
+	name: string;
+	client: string;
+}
+
+export const databaseProviders: DatabaseProvider[] = [
 	{
 		name: 'PostgreSQL',
 		client: 'pg'

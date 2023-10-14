@@ -118,7 +118,7 @@
 					<th>{name}</th>
 					<td>{providerName}</td>
 					<td>{connectionType}</td>
-					<td class="w-48">
+					<td class="w-52">
 						<button class="btn btn-xs btn-primary" on:click={() => testConnection(id)}>
 							<Icon icon="tabler:plug-connected" width={16} />
 							Test Connection

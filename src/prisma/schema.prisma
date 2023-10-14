@@ -14,12 +14,13 @@ model User {
    id    String @id @unique
    name  String
    email String @unique
-   theme String @default("light")
+   theme String @default("wireframe")
 
    auth_session Session[]
    key          Key[]
    databases    Database[]
    apiKeys      APIKey[]
+   reports      Report[]
 }
 
 model Session {
@@ -53,7 +54,8 @@ model Database {
    connectionOption ConnectionOption?
    userId           String
 
-   User User @relation(fields: [userId], references: [id])
+   user     User      @relation(fields: [userId], references: [id])
+   datasets Dataset[]
 
    @@unique([userId, name])
 }
@@ -75,7 +77,59 @@ model APIKey {
    name   String
    userId String
 
-   User User @relation(fields: [userId], references: [id])
+   user User @relation(fields: [userId], references: [id])
 
    @@unique([userId, name])
+}
+
+model Report {
+   id          String @id @unique @default(nanoid())
+   name        String
+   slug        String
+   description String
+   theme       String
+   userId      String
+
+   user           User            @relation(fields: [userId], references: [id])
+   datasets       Dataset[]
+   cardComponents CardComponent[]
+
+   @@unique([userId, name])
+   @@unique([userId, slug])
+}
+
+model Dataset {
+   id         String  @id @unique @default(nanoid())
+   query      String
+   databaseId String?
+   reportId   String  @unique
+
+   database       Database?       @relation(fields: [databaseId], references: [id])
+   report         Report          @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+   cardComponents CardComponent[]
+}
+
+model CardComponent {
+   id           String @id @unique @default(nanoid())
+   name         String
+   title        String
+   column       String
+   reportId     String @unique
+   reportDataId String
+   propertiesId String @unique
+
+   report     Report              @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+   dataset    Dataset             @relation(fields: [reportDataId], references: [id])
+   properties ComponentProperties @relation(fields: [propertiesId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model ComponentProperties {
+   id            String         @id @unique @default(nanoid())
+   x             Int
+   y             Int
+   width         Int
+   height        Int
+   bgColor       String
+   textColor     String
+   cardComponent CardComponent?
 }
