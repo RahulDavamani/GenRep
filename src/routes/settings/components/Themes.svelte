@@ -3,59 +3,23 @@
 	import { ui } from '../../../stores/ui.store';
 	import type { PageData } from '../$types';
 	import { trpc } from '../../../trpc/client';
-	import { trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler } from '../../../trpc/trpcErrorhandler';
 	import { invalidateAll } from '$app/navigation';
-
-	const themes = [
-		'light',
-		'dark',
-		'cupcake',
-		'bumblebee',
-		'emerald',
-		'corporate',
-		'synthwave',
-		'retro',
-		'cyberpunk',
-		'valentine',
-		'halloween',
-		'garden',
-		'forest',
-		'aqua',
-		'lofi',
-		'pastel',
-		'fantasy',
-		'wireframe',
-		'black',
-		'luxury',
-		'dracula',
-		'cmyk',
-		'autumn',
-		'business',
-		'acid',
-		'lemonade',
-		'night',
-		'coffee',
-		'winter'
-	];
+	import { themes } from '../../../data/themes';
 
 	$: data = $page.data as PageData;
 
 	const updateTheme = async (theme: string) => {
-		try {
-			ui.setTheme(theme);
-			await trpc($page).theme.update.query({ theme });
-			invalidateAll();
-		} catch (e) {
-			const { code, message } = trpcErrorhandler(e) ?? {};
-			ui.showToast({ class: 'btn-error', title: `${code}: ${message}` });
-		}
+		ui.setTheme(theme);
+		await trpc($page).theme.update.query({ theme }).catch(trpcClientErrorHandler);
+		invalidateAll();
 	};
 </script>
 
 <div class="mt-10">
 	<div class="text-lg font-semibold mb-1">Themes:</div>
 
-	<div class="flex flex-wrap">
+	<div class="flex flex-wrap justify-around gap-x-6">
 		{#each themes as th}
 			<!-- svelte-ignore a11y-no-static-element-interactions -->
 			<!-- svelte-ignore a11y-click-events-have-key-events -->

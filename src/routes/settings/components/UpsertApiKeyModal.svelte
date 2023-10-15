@@ -1,35 +1,34 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { ui } from '../../../stores/ui.store';
-	import { trpcErrorhandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler, trpcErrorhandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
 	import { trpc } from '../../../trpc/client';
 	import { page } from '$app/stores';
 	import { invalidateAll } from '$app/navigation';
 	import type { UpsertApiKey } from '../../../trpc/routers/apiKey.router';
 
 	export let upsertApiKey: UpsertApiKey | undefined;
-	let errors: TRPCZodErrors = {};
+	let zodErrors: TRPCZodErrors | undefined;
 
 	const closeModal = () => {
 		upsertApiKey = undefined;
-		errors = {};
+		zodErrors = undefined;
 	};
 	const submit = async () => {
 		$ui.loader = { title: upsertApiKey?.id ? 'Updating API Key' : 'Adding API Key ' };
-		try {
-			if (!upsertApiKey) return;
-			await trpc($page).apiKey.upsert.query(upsertApiKey);
-			ui.showToast({
-				class: 'alert-success',
-				title: upsertApiKey?.id ? 'API Key Updated Successfully' : 'API Key Added Successfully'
+		if (!upsertApiKey) return;
+		await trpc($page)
+			.apiKey.upsert.query(upsertApiKey)
+			.catch((e) => {
+				zodErrors = trpcClientErrorHandler(e, { throwError: false }).zodErrors;
+				throw e;
 			});
-			invalidateAll();
-			closeModal();
-		} catch (e) {
-			const { code, message, zodErrors } = trpcErrorhandler(e);
-			ui.showToast({ class: 'alert-error', title: `${code}: ${message}` });
-			errors = zodErrors ?? {};
-		}
+		ui.showToast({
+			class: 'alert-success',
+			title: upsertApiKey?.id ? 'API Key Updated Successfully' : 'API Key Added Successfully'
+		});
+		invalidateAll();
+		closeModal();
 		$ui.loader = undefined;
 	};
 </script>
@@ -52,8 +51,8 @@
 			<div class="form-control">
 				<div class="label font-semibold">Name</div>
 				<input type="text" placeholder="Type here" class="input input-bordered w-full" bind:value={upsertApiKey.name} />
-				{#if errors.name}
-					<div class="label text-xs text-error">{errors.name.message}</div>
+				{#if zodErrors?.name}
+					<div class="label text-xs text-error">{zodErrors.name.message}</div>
 				{/if}
 			</div>
 			<div class="modal-action">

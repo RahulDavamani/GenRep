@@ -7,7 +7,7 @@
 	import { copyToClipboard } from '$lib/client/copyToClipboard';
 	import { invalidateAll } from '$app/navigation';
 	import { trpc } from '../../../trpc/client';
-	import { trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler, trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
 	import type { UpsertApiKey } from '../../../trpc/routers/apiKey.router';
 
 	let upsertApiKey: UpsertApiKey | undefined;
@@ -29,15 +29,10 @@
 					class: 'btn-success',
 					onClick: async () => {
 						$ui.loader = { title: 'Deleting API Key' };
-						try {
-							await trpc($page).apiKey.delete.query({ id });
-							ui.showToast({ class: 'alert-success', title: 'API Key Successfully Deleted' });
-							invalidateAll();
-							$ui.modal = undefined;
-						} catch (e) {
-							const { code, message } = trpcErrorhandler(e) ?? {};
-							ui.showToast({ class: 'alert-error', title: `${code}: ${message}` });
-						}
+						await trpc($page).apiKey.delete.query({ id }).catch(trpcClientErrorHandler);
+						ui.showToast({ class: 'alert-success', title: 'API Key Successfully Deleted' });
+						invalidateAll();
+						$ui.modal = undefined;
 						$ui.loader = undefined;
 					}
 				}
@@ -72,7 +67,7 @@
 				<tr>
 					<td class="w-1">
 						<button on:click={() => (upsertApiKey = { ...apiKey })} class="flex">
-							<Icon icon="material-symbols:edit-rounded" width={20} class="text-info" />
+							<Icon icon="mdi:square-edit-outline" width={20} class="text-info" />
 						</button>
 					</td>
 					<th>{name}</th>
@@ -80,12 +75,12 @@
 						{#if showKeys.includes(id)}
 							{id}
 							<button on:click={() => (showKeys = showKeys.filter((sk) => sk !== id))}>
-								<Icon icon="material-symbols:visibility-rounded" width={16} />
+								<Icon icon="mdi:eye" width={16} />
 							</button>
 						{:else}
 							################
 							<button on:click={() => (showKeys = [...showKeys, id])}>
-								<Icon icon="material-symbols:visibility-off-rounded" width={16} />
+								<Icon icon="mdi:eye-off" width={16} />
 							</button>
 						{/if}
 						<button on:click={() => copyToClipboard(id)}>
@@ -94,7 +89,7 @@
 					</td>
 					<td class="w-1">
 						<button on:click={() => showDeleteKeyModal(id)} class="flex">
-							<Icon icon="material-symbols:delete-forever-rounded" width={22} class="text-error" />
+							<Icon icon="mdi:delete-forever" width={22} class="text-error" />
 						</button>
 					</td>
 				</tr>

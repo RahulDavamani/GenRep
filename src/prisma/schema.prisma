@@ -85,7 +85,6 @@ model APIKey {
 model Report {
    id          String @id @unique @default(nanoid())
    name        String
-   slug        String
    description String
    theme       String
    userId      String
@@ -95,11 +94,11 @@ model Report {
    cardComponents CardComponent[]
 
    @@unique([userId, name])
-   @@unique([userId, slug])
 }
 
 model Dataset {
    id         String  @id @unique @default(nanoid())
+   name       String
    query      String
    databaseId String?
    reportId   String  @unique
@@ -107,6 +106,8 @@ model Dataset {
    database       Database?       @relation(fields: [databaseId], references: [id])
    report         Report          @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
    cardComponents CardComponent[]
+
+   @@unique([reportId, name])
 }
 
 model CardComponent {
@@ -121,6 +122,8 @@ model CardComponent {
    report     Report              @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
    dataset    Dataset             @relation(fields: [reportDataId], references: [id])
    properties ComponentProperties @relation(fields: [propertiesId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+   @@unique([reportId, name])
 }
 
 model ComponentProperties {

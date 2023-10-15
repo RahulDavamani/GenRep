@@ -2,43 +2,43 @@
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 	import { trpc } from '../../../trpc/client';
-	import { trpcErrorhandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler, trpcErrorhandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
 	import { ui } from '../../../stores/ui.store';
 	import { invalidateAll } from '$app/navigation';
 	import type { UpsertDatabase } from '../../../trpc/routers/database.router';
 	import { databaseProviders } from '../../../data/databaseProviders';
 
 	export let upsertDatabase: UpsertDatabase | undefined;
-	let errors: TRPCZodErrors = {};
-	$: connectionOptionErrors = errors.connectionOption as TRPCZodErrors | undefined;
+	let zodErrors: TRPCZodErrors | undefined;
+	$: connectionOptionZodErrors = zodErrors?.connectionOption as TRPCZodErrors | undefined;
 
 	const closeModal = () => {
 		upsertDatabase = undefined;
-		errors = {};
+		zodErrors = undefined;
 	};
 
 	const submit = async () => {
 		$ui.loader = { title: upsertDatabase?.id ? 'Updating Database' : 'Adding Database ' };
-		try {
-			if (!upsertDatabase) return;
-			await trpc($page).database.upsert.query({
+		if (!upsertDatabase) return;
+		await trpc($page)
+			.database.upsert.query({
 				...upsertDatabase,
 				connectionString:
 					upsertDatabase.connectionType === 'STRING' ? upsertDatabase.connectionString ?? undefined : undefined,
 				connectionOption:
 					upsertDatabase.connectionType === 'OPTIONS' ? upsertDatabase.connectionOption ?? undefined : undefined
+			})
+			.catch((e) => {
+				zodErrors = trpcClientErrorHandler(e, { throwError: false }).zodErrors;
+				throw e;
 			});
-			ui.showToast({
-				class: 'alert-success',
-				title: upsertDatabase.id ? 'Database Updated Successfully' : 'Database Added Successfully'
-			});
-			invalidateAll();
-			closeModal();
-		} catch (e) {
-			const { code, message, zodErrors } = trpcErrorhandler(e);
-			ui.showToast({ class: 'alert-error', title: `${code}: ${message}` });
-			errors = zodErrors ?? {};
-		}
+
+		ui.showToast({
+			class: 'alert-success',
+			title: upsertDatabase.id ? 'Database Updated Successfully' : 'Database Added Successfully'
+		});
+		invalidateAll();
+		closeModal();
 		$ui.loader = undefined;
 	};
 </script>
@@ -68,8 +68,8 @@
 					class="input input-bordered w-full"
 					bind:value={upsertDatabase.name}
 				/>
-				{#if errors.name}
-					<div class="label text-xs text-error">{errors.name.message}</div>
+				{#if zodErrors?.name}
+					<div class="label text-xs text-error">{zodErrors.name.message}</div>
 				{/if}
 			</div>
 
@@ -81,8 +81,8 @@
 						<option value={client}>{name}</option>
 					{/each}
 				</select>
-				{#if errors.provider}
-					<div class="label text-xs text-error">{errors.provider.message}</div>
+				{#if zodErrors?.provider}
+					<div class="label text-xs text-error">{zodErrors.provider.message}</div>
 				{/if}
 			</div>
 
@@ -118,8 +118,8 @@
 						class="input input-bordered w-full"
 						bind:value={upsertDatabase.connectionString}
 					/>
-					{#if errors.connectionString}
-						<div class="label text-xs text-error">{errors.connectionString.message}</div>
+					{#if zodErrors?.connectionString}
+						<div class="label text-xs text-error">{zodErrors.connectionString.message}</div>
 					{/if}
 				</div>
 			{:else if upsertDatabase.connectionOption}
@@ -132,8 +132,8 @@
 						class="input input-bordered w-full"
 						bind:value={upsertDatabase.connectionOption.host}
 					/>
-					{#if connectionOptionErrors?.host}
-						<div class="label text-xs text-error">{connectionOptionErrors.host.message}</div>
+					{#if connectionOptionZodErrors?.host}
+						<div class="label text-xs text-error">{connectionOptionZodErrors.host.message}</div>
 					{/if}
 				</div>
 
@@ -146,8 +146,8 @@
 						class="input input-bordered w-full"
 						bind:value={upsertDatabase.connectionOption.port}
 					/>
-					{#if connectionOptionErrors?.port}
-						<div class="label text-xs text-error">{connectionOptionErrors.port.message}</div>
+					{#if connectionOptionZodErrors?.port}
+						<div class="label text-xs text-error">{connectionOptionZodErrors.port.message}</div>
 					{/if}
 				</div>
 
@@ -160,9 +160,9 @@
 						class="input input-bordered w-full"
 						bind:value={upsertDatabase.connectionOption.databaseName}
 					/>
-					{#if connectionOptionErrors?.databaseName}
+					{#if connectionOptionZodErrors?.databaseName}
 						<div class="label text-xs text-error">
-							{connectionOptionErrors.databaseName.message}
+							{connectionOptionZodErrors.databaseName.message}
 						</div>
 					{/if}
 				</div>
@@ -176,9 +176,9 @@
 						class="input input-bordered w-full"
 						bind:value={upsertDatabase.connectionOption.username}
 					/>
-					{#if connectionOptionErrors?.username}
+					{#if connectionOptionZodErrors?.username}
 						<div class="label text-xs text-error">
-							{connectionOptionErrors?.username.message}
+							{connectionOptionZodErrors?.username.message}
 						</div>
 					{/if}
 				</div>
@@ -192,9 +192,9 @@
 						class="input input-bordered w-full"
 						bind:value={upsertDatabase.connectionOption.password}
 					/>
-					{#if connectionOptionErrors?.password}
+					{#if connectionOptionZodErrors?.password}
 						<div class="label text-xs text-error">
-							{connectionOptionErrors.password.message}
+							{connectionOptionZodErrors.password.message}
 						</div>
 					{/if}
 				</div>

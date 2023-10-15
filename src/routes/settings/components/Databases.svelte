@@ -5,7 +5,7 @@
 	import { ui } from '../../../stores/ui.store';
 	import UpsertDatabaseModal from './UpsertDatabaseModal.svelte';
 	import { trpc } from '../../../trpc/client';
-	import { trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler, trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
 	import { invalidateAll } from '$app/navigation';
 	import type { UpsertDatabase } from '../../../trpc/routers/database.router';
 	import { databaseProviders } from '../../../data/databaseProviders';
@@ -54,15 +54,10 @@
 					class: 'btn-success',
 					onClick: async () => {
 						$ui.loader = { title: 'Deleting Database' };
-						try {
-							await trpc($page).database.delete.query({ id });
-							ui.showToast({ class: 'alert-success', title: 'Database Successfully Deleted' });
-							invalidateAll();
-							$ui.modal = undefined;
-						} catch (e) {
-							const { code, message } = trpcErrorhandler(e) ?? {};
-							ui.showToast({ class: 'alert-error', title: `${code}: ${message}` });
-						}
+						await trpc($page).database.delete.query({ id }).catch(trpcClientErrorHandler);
+						ui.showToast({ class: 'alert-success', title: 'Database Successfully Deleted' });
+						invalidateAll();
+						$ui.modal = undefined;
 						$ui.loader = undefined;
 					}
 				}
@@ -72,13 +67,11 @@
 
 	const testConnection = async (id: string) => {
 		$ui.loader = { title: 'Testing Database Connection' };
-		try {
-			const error = await trpc($page).database.testDatabase.query({ id });
-			if (error) throw error;
-			ui.showToast({ class: 'alert-success', title: 'Database connection is successful' });
-		} catch (error) {
-			ui.showToast({ class: 'alert-error', title: `Failed to connect to Database: ${error}` });
-		}
+		const error = await trpc($page)
+			.database.testDatabase.query({ id })
+			.catch((e) => trpcClientErrorHandler(e, { throwError: false, showToast: false }).message);
+		if (error) ui.showToast({ class: 'alert-error', title: `Failed to connect to Database: ${error}` });
+		else ui.showToast({ class: 'alert-success', title: 'Database connection is successful' });
 		$ui.loader = undefined;
 	};
 </script>
@@ -112,7 +105,7 @@
 				<tr>
 					<td class="w-1">
 						<button on:click={() => showUpdateDatabaseModal(db)} class="flex">
-							<Icon icon="material-symbols:edit-rounded" width={20} class="text-info" />
+							<Icon icon="mdi:square-edit-outline" width={20} class="text-info" />
 						</button>
 					</td>
 					<th>{name}</th>
@@ -126,7 +119,7 @@
 					</td>
 					<td class="w-1">
 						<button on:click={() => showDeleteDatabaseModal(id)} class="flex">
-							<Icon icon="material-symbols:delete-forever-rounded" width={22} class="text-error" />
+							<Icon icon="mdi:delete-forever" width={22} class="text-error" />
 						</button>
 					</td>
 				</tr>
