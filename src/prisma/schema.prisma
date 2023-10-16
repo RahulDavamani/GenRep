@@ -101,7 +101,7 @@ model Dataset {
    name       String
    query      String
    databaseId String?
-   reportId   String  @unique
+   reportId   String
 
    database       Database?       @relation(fields: [databaseId], references: [id])
    report         Report          @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)

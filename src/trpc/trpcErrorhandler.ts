@@ -14,14 +14,14 @@ export interface TRPCZodError {
 	path: string[];
 }
 
-export interface TRPCZodErrors {
-	[key: string]: TRPCZodError | TRPCZodErrors;
-}
+export type TRPCZodErrors<T> = {
+	[K in keyof T]: T[K] extends object | undefined ? TRPCZodErrors<T[K]> : TRPCZodError;
+};
 
-export interface TRPCHandlerError {
+export interface TRPCHandlerError<T> {
 	code: number;
 	message: string;
-	zodErrors?: TRPCZodErrors;
+	zodErrors?: TRPCZodErrors<T>;
 }
 
 export interface TRPCClientErrorHandlerOptions {
@@ -30,17 +30,19 @@ export interface TRPCClientErrorHandlerOptions {
 	showToast?: boolean;
 }
 
-export const trpcClientErrorHandler = (
+export const trpcClientErrorHandler = <T>(
 	e: unknown,
-	{ stopLoading = true, showToast = true, throwError = true }: TRPCClientErrorHandlerOptions = {}
+	callback?: (e: TRPCHandlerError<T>) => void,
+	{ stopLoading = true, showToast = true }: TRPCClientErrorHandlerOptions = {}
 ) => {
-	const { code, message, zodErrors } = trpcErrorhandler(e);
+	const { code, message, zodErrors } = trpcErrorhandler<T>(e);
+
+	if (callback) callback({ code, message, zodErrors });
 
 	if (stopLoading) ui.update((state) => ({ ...state, loader: undefined }));
 	if (showToast) ui.showToast({ class: 'alert-error', title: `${code}: ${message}` });
 
-	if (throwError) throw `${code}: ${message}`;
-	return { code, message, zodErrors };
+	throw `${code}: ${message}`;
 };
 
 export const trpcServerErrorHandler = (e: unknown) => {
@@ -48,7 +50,7 @@ export const trpcServerErrorHandler = (e: unknown) => {
 	throw error(code, { message: message });
 };
 
-export const trpcErrorhandler = (e: unknown): TRPCHandlerError => {
+export const trpcErrorhandler = <T>(e: unknown): TRPCHandlerError<T> => {
 	if (e instanceof TRPCClientError) {
 		try {
 			const errors = JSON.parse(e.message);
@@ -56,7 +58,7 @@ export const trpcErrorhandler = (e: unknown): TRPCHandlerError => {
 				return {
 					code: e.data.httpStatus,
 					message: 'Input Validation Error',
-					zodErrors: formatZodErrors(errors)
+					zodErrors: formatZodErrors<T>(errors)
 				};
 		} catch (_) {
 			return {
@@ -77,24 +79,26 @@ export const trpcErrorhandler = (e: unknown): TRPCHandlerError => {
 	};
 };
 
-function formatZodErrors(errors: TRPCZodError[]): TRPCZodErrors {
-	const formattedErrors: TRPCZodErrors = {};
+export const formatZodErrors = <T>(errors: TRPCZodError[]): TRPCZodErrors<T> => {
+	const formattedErrors: TRPCZodErrors<T> = {} as TRPCZodErrors<T>;
 
 	errors.forEach((error) => {
 		const path = error.path;
-
-		let currentObj: TRPCZodErrors = formattedErrors;
+		let currentObj: TRPCZodErrors<T> = formattedErrors;
 
 		for (let i = 0; i < path.length; i++) {
 			const key = path[i];
+
 			if (i === path.length - 1) {
-				currentObj[key] = error;
+				currentObj[key as keyof T] = error as T[keyof T] extends object | undefined
+					? TRPCZodErrors<T[keyof T]>
+					: TRPCZodError;
 			} else {
-				currentObj[key] = currentObj[key] || {};
-				currentObj = currentObj[key] as TRPCZodErrors;
+				currentObj[key as keyof T] = currentObj[key as keyof T] || ({} as TRPCZodErrors<T>);
+				currentObj = currentObj[key as keyof T] as TRPCZodErrors<T>;
 			}
 		}
 	});
 
 	return formattedErrors;
-}
+};

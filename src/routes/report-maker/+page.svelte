@@ -6,21 +6,33 @@
 	import { ui } from '../../stores/ui.store.js';
 	import { invalidateAll } from '$app/navigation';
 	import ReportForm from './components/ReportForm.svelte';
+	import Datasets from './components/Datasets.svelte';
+	import type { UpsertReport } from '../../trpc/routers/report.router.js';
+	import { onMount } from 'svelte';
+	import { reportMaker } from '../../stores/report-maker.store.js';
 
 	export let data;
-	let {
-		report: { id, name, theme, description }
-	} = data;
-	let zodErrors: TRPCZodErrors | undefined;
+	let { report } = data;
+	let zodErrors: TRPCZodErrors<UpsertReport> | undefined;
+
+	onMount(async () => {
+		$reportMaker = {
+			upsertReport: {
+				id: report.id,
+				name: report.name,
+				description: report.description,
+				theme: report.theme,
+				datasets: report.datasets
+			},
+			dbDatas: []
+		};
+	});
 
 	const save = async () => {
 		$ui.loader = { title: 'Saving Report' };
 		await trpc($page)
-			.report.save.query({ id, name, theme, description })
-			.catch((e) => {
-				zodErrors = trpcClientErrorHandler(e, { throwError: false }).zodErrors;
-				throw e;
-			});
+			.report.save.query($reportMaker.upsertReport)
+			.catch((e) => trpcClientErrorHandler<UpsertReport>(e, (e) => (zodErrors = e.zodErrors)));
 
 		ui.showToast({
 			class: 'alert-success',
@@ -42,12 +54,10 @@
 		</button>
 	</div>
 	<div class="border shadow rounded-box">
-		<ReportForm bind:name bind:description bind:theme {zodErrors} />
+		<ReportForm {zodErrors} />
 
-		<div class="flex border rounded-b-box">
-			<div class="border-r w-full p-2 h-20">Datasets</div>
-			<div class="w-full p-2 h-20">Components</div>
-		</div>
+		<div class="divider m-0" />
+		<Datasets />
 	</div>
 	<!-- <div class=" border mt-5 shadow rounded-box p-2 h-full">hello</div> -->
 </div>

@@ -44,10 +44,10 @@
 <div class="flex justify-between items-center mt-10 mb-6">
 	<div class="flex gap-2 items-center text-lg font-semibold">
 		<Icon icon="mdi:key" />
-		API Keys: <span>({apiKeys.length})</span>
+		API Keys: <span class="font-mono">({apiKeys.length})</span>
 	</div>
 	<button class="btn btn-sm btn-success" on:click={() => (upsertApiKey = { id: undefined, name: '' })}>
-		<Icon icon="mdi:key-plus" width={20} /> Add API Key
+		<Icon icon="mdi:key-plus" width={20} /> Create API Key
 	</button>
 </div>
 

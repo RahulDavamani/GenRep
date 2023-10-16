@@ -67,11 +67,8 @@
 
 	const testConnection = async (id: string) => {
 		$ui.loader = { title: 'Testing Database Connection' };
-		const error = await trpc($page)
-			.database.testDatabase.query({ id })
-			.catch((e) => trpcClientErrorHandler(e, { throwError: false, showToast: false }).message);
-		if (error) ui.showToast({ class: 'alert-error', title: `Failed to connect to Database: ${error}` });
-		else ui.showToast({ class: 'alert-success', title: 'Database connection is successful' });
+		await trpc($page).database.testConnection.query({ id }).catch(trpcClientErrorHandler);
+		ui.showToast({ class: 'alert-success', title: 'Database connection is successful' });
 		$ui.loader = undefined;
 	};
 </script>
@@ -79,7 +76,7 @@
 <div class="flex justify-between items-center mb-6">
 	<div class="flex gap-2 items-center text-lg font-semibold">
 		<Icon icon="mdi:database" />
-		Databases: <span>({databases.length})</span>
+		Databases: <span class="font-mono">({databases.length})</span>
 	</div>
 	<button class="btn btn-sm btn-success" on:click={showAddDatabaseModal}>
 		<Icon icon="mdi:database-plus" width={20} /> Add Database

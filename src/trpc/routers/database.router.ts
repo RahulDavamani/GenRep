@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { authProcedure, router } from '../trpc';
 import prismaErrorHandler from '../../prisma/prismaErrorHandler';
-import { testDBConnection } from '$lib/server/testDBConnection';
-import { TRPCError } from '@trpc/server';
+import { testDBConnection } from '$lib/server/knex/testDBConnection';
+import { queryDB } from '$lib/server/knex/queryDb';
 
 export const upsertDatabaseSchema = z.object({
 	id: z.string().min(1).optional(),
@@ -38,8 +38,7 @@ export const databaseRouter = router({
 				ctx: { session },
 				input: { id, name, provider, connectionType, connectionString, connectionOption }
 			}) => {
-				const error = await testDBConnection(provider, connectionString, connectionOption);
-				if (error) throw new TRPCError({ code: 'BAD_REQUEST', message: error });
+				await testDBConnection(provider, connectionString, connectionOption);
 
 				const dbConnectionOption = await prisma.connectionOption.findUnique({
 					where: { databaseId: id ?? '' },
@@ -86,7 +85,7 @@ export const databaseRouter = router({
 			return { id };
 		}),
 
-	testDatabase: authProcedure
+	testConnection: authProcedure
 		.input(
 			z.object({
 				id: z.string().min(1)
@@ -99,19 +98,33 @@ export const databaseRouter = router({
 					select: {
 						provider: true,
 						connectionString: true,
-						connectionOption: {
-							select: {
-								host: true,
-								port: true,
-								databaseName: true,
-								username: true,
-								password: true
-							}
-						}
+						connectionOption: true
 					}
 				})
 				.catch(prismaErrorHandler);
 
 			return await testDBConnection(provider, connectionString, connectionOption);
+		}),
+
+	queryData: authProcedure
+		.input(
+			z.object({
+				id: z.string().min(1),
+				query: z.string().min(1)
+			})
+		)
+		.query(async ({ input: { id, query } }) => {
+			const { provider, connectionString, connectionOption } = await prisma.database
+				.findUniqueOrThrow({
+					where: { id },
+					select: {
+						provider: true,
+						connectionString: true,
+						connectionOption: true
+					}
+				})
+				.catch(prismaErrorHandler);
+
+			return await queryDB(provider, connectionString, connectionOption, query);
 		})
 });

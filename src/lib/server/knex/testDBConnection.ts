@@ -1,17 +1,11 @@
 import knex from 'knex';
-
-interface ConnectionOption {
-	host: string;
-	port: number;
-	databaseName: string;
-	username: string;
-	password: string;
-}
+import type { UpsertDatabase } from '../../../trpc/routers/database.router';
+import { TRPCError } from '@trpc/server';
 
 export const testDBConnection = async (
 	provider: string,
 	connectionString: string | undefined | null,
-	connectionOption: ConnectionOption | undefined | null
+	connectionOption: UpsertDatabase['connectionOption'] | undefined | null
 ) => {
 	try {
 		let db;
@@ -25,10 +19,12 @@ export const testDBConnection = async (
 					database: connectionOption.databaseName
 				}
 			});
-		} else return '';
+		} else throw 'Invalid Connection Type';
 
 		await db.raw('SELECT 1 as test');
+		await db.destroy();
+		return { success: true };
 	} catch (error) {
-		return String(error);
+		throw new TRPCError({ code: 'BAD_REQUEST', message: String(error) });
 	}
 };

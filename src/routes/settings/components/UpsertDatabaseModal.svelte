@@ -9,8 +9,7 @@
 	import { databaseProviders } from '../../../data/databaseProviders';
 
 	export let upsertDatabase: UpsertDatabase | undefined;
-	let zodErrors: TRPCZodErrors | undefined;
-	$: connectionOptionZodErrors = zodErrors?.connectionOption as TRPCZodErrors | undefined;
+	let zodErrors: TRPCZodErrors<UpsertDatabase> | undefined;
 
 	const closeModal = () => {
 		upsertDatabase = undefined;
@@ -28,10 +27,7 @@
 				connectionOption:
 					upsertDatabase.connectionType === 'OPTIONS' ? upsertDatabase.connectionOption ?? undefined : undefined
 			})
-			.catch((e) => {
-				zodErrors = trpcClientErrorHandler(e, { throwError: false }).zodErrors;
-				throw e;
-			});
+			.catch((e) => trpcClientErrorHandler<UpsertDatabase>(e, (e) => (zodErrors = e.zodErrors)));
 
 		ui.showToast({
 			class: 'alert-success',
@@ -45,7 +41,7 @@
 
 {#if upsertDatabase}
 	<div class="modal modal-open">
-		<div class="modal-box">
+		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
 				<div class="text-xl font-semibold">
 					{#if upsertDatabase.id}
@@ -55,7 +51,7 @@
 					{/if}
 				</div>
 				<button on:click={closeModal}>
-					<Icon icon="material-symbols:close" class="cursor-pointer text-error" width="20" />
+					<Icon icon="mdi:close" class="cursor-pointer text-error" width={20} />
 				</button>
 			</div>
 
@@ -65,7 +61,7 @@
 				<input
 					type="text"
 					placeholder="Type here"
-					class="input input-bordered w-full"
+					class="input input-bordered {zodErrors?.name && 'input-error'}"
 					bind:value={upsertDatabase.name}
 				/>
 				{#if zodErrors?.name}
@@ -81,9 +77,6 @@
 						<option value={client}>{name}</option>
 					{/each}
 				</select>
-				{#if zodErrors?.provider}
-					<div class="label text-xs text-error">{zodErrors.provider.message}</div>
-				{/if}
 			</div>
 
 			<!-- Connection Type -->
@@ -115,7 +108,7 @@
 					<input
 						type="text"
 						placeholder="Type here"
-						class="input input-bordered w-full"
+						class="input input-bordered {zodErrors?.connectionString && 'input-error'}"
 						bind:value={upsertDatabase.connectionString}
 					/>
 					{#if zodErrors?.connectionString}
@@ -129,11 +122,11 @@
 					<input
 						type="text"
 						placeholder="Type here"
-						class="input input-bordered w-full"
+						class="input input-bordered {zodErrors?.connectionOption?.host && 'input-error'}"
 						bind:value={upsertDatabase.connectionOption.host}
 					/>
-					{#if connectionOptionZodErrors?.host}
-						<div class="label text-xs text-error">{connectionOptionZodErrors.host.message}</div>
+					{#if zodErrors?.connectionOption?.host}
+						<div class="label text-xs text-error">{zodErrors.connectionOption.host.message}</div>
 					{/if}
 				</div>
 
@@ -143,11 +136,11 @@
 					<input
 						type="number"
 						placeholder="Type here"
-						class="input input-bordered w-full"
+						class="input input-bordered {zodErrors?.connectionOption?.port && 'input-error'}"
 						bind:value={upsertDatabase.connectionOption.port}
 					/>
-					{#if connectionOptionZodErrors?.port}
-						<div class="label text-xs text-error">{connectionOptionZodErrors.port.message}</div>
+					{#if zodErrors?.connectionOption?.port}
+						<div class="label text-xs text-error">{zodErrors.connectionOption.port.message}</div>
 					{/if}
 				</div>
 
@@ -157,12 +150,12 @@
 					<input
 						type="text"
 						placeholder="Type here"
-						class="input input-bordered w-full"
+						class="input input-bordered {zodErrors?.connectionOption?.databaseName && 'input-error'}"
 						bind:value={upsertDatabase.connectionOption.databaseName}
 					/>
-					{#if connectionOptionZodErrors?.databaseName}
+					{#if zodErrors?.connectionOption?.databaseName}
 						<div class="label text-xs text-error">
-							{connectionOptionZodErrors.databaseName.message}
+							{zodErrors.connectionOption.databaseName.message}
 						</div>
 					{/if}
 				</div>
@@ -173,12 +166,12 @@
 					<input
 						type="text"
 						placeholder="Type here"
-						class="input input-bordered w-full"
+						class="input input-bordered {zodErrors?.connectionOption?.username && 'input-error'}"
 						bind:value={upsertDatabase.connectionOption.username}
 					/>
-					{#if connectionOptionZodErrors?.username}
+					{#if zodErrors?.connectionOption?.username}
 						<div class="label text-xs text-error">
-							{connectionOptionZodErrors?.username.message}
+							{zodErrors.connectionOption?.username.message}
 						</div>
 					{/if}
 				</div>
@@ -189,12 +182,12 @@
 					<input
 						type="text"
 						placeholder="Type here"
-						class="input input-bordered w-full"
+						class="input input-bordered {zodErrors?.connectionOption?.password && 'input-error'}"
 						bind:value={upsertDatabase.connectionOption.password}
 					/>
-					{#if connectionOptionZodErrors?.password}
+					{#if zodErrors?.connectionOption?.password}
 						<div class="label text-xs text-error">
-							{connectionOptionZodErrors.password.message}
+							{zodErrors.connectionOption.password.message}
 						</div>
 					{/if}
 				</div>

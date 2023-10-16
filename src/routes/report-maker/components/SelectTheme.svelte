@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { themes } from '../../../data/themes';
+	import { reportMaker } from '../../../stores/report-maker.store';
 
 	export let showSelectTheme: boolean;
-	export let theme: string;
 </script>
 
 <div class="modal modal-open">
@@ -22,9 +22,9 @@
 				<div
 					data-theme={th}
 					class="card w-44 bg-base-100 my-3 lg:m-6 border cursor-pointer
-               {theme === th && 'outline outline-primary'}"
+               {$reportMaker.upsertReport.theme === th && 'outline outline-primary'}"
 					on:click={() => {
-						theme = th;
+						$reportMaker.upsertReport.theme = th;
 						showSelectTheme = false;
 					}}
 				>

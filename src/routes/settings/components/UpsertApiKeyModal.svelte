@@ -8,24 +8,23 @@
 	import type { UpsertApiKey } from '../../../trpc/routers/apiKey.router';
 
 	export let upsertApiKey: UpsertApiKey | undefined;
-	let zodErrors: TRPCZodErrors | undefined;
+	let zodErrors: TRPCZodErrors<UpsertApiKey> | undefined;
 
 	const closeModal = () => {
 		upsertApiKey = undefined;
 		zodErrors = undefined;
 	};
 	const submit = async () => {
-		$ui.loader = { title: upsertApiKey?.id ? 'Updating API Key' : 'Adding API Key ' };
+		$ui.loader = { title: upsertApiKey?.id ? 'Updating API Key' : 'Creating API Key ' };
 		if (!upsertApiKey) return;
+
 		await trpc($page)
 			.apiKey.upsert.query(upsertApiKey)
-			.catch((e) => {
-				zodErrors = trpcClientErrorHandler(e, { throwError: false }).zodErrors;
-				throw e;
-			});
+			.catch((e) => trpcClientErrorHandler<UpsertApiKey>(e, (e) => (zodErrors = e.zodErrors)));
+
 		ui.showToast({
 			class: 'alert-success',
-			title: upsertApiKey?.id ? 'API Key Updated Successfully' : 'API Key Added Successfully'
+			title: upsertApiKey?.id ? 'API Key Updated Successfully' : 'API Key Created Successfully'
 		});
 		invalidateAll();
 		closeModal();
@@ -39,29 +38,36 @@
 			<div class="flex justify-between items-center mb-4">
 				<div class="text-xl font-semibold">
 					{#if upsertApiKey.id}
-						Update Key
+						Update API Key
 					{:else}
-						Add Key
+						Create New API Key
 					{/if}
 				</div>
 				<button on:click={closeModal}>
-					<Icon icon="material-symbols:close" class="cursor-pointer text-error" width="20" />
+					<Icon icon="mdi:close" class="cursor-pointer text-error" width={20} />
 				</button>
 			</div>
+
 			<div class="form-control">
 				<div class="label font-semibold">Name</div>
-				<input type="text" placeholder="Type here" class="input input-bordered w-full" bind:value={upsertApiKey.name} />
+				<input
+					type="text"
+					placeholder="Type here"
+					class="input input-bordered {zodErrors?.name && 'input-error'}"
+					bind:value={upsertApiKey.name}
+				/>
 				{#if zodErrors?.name}
 					<div class="label text-xs text-error">{zodErrors.name.message}</div>
 				{/if}
 			</div>
+
 			<div class="modal-action">
 				<button class="btn btn-error w-24" on:click={closeModal}>Cancel</button>
 				<button class="btn btn-success w-24" on:click={submit}>
 					{#if upsertApiKey.id}
 						Update
 					{:else}
-						Add
+						Create
 					{/if}
 				</button>
 			</div>

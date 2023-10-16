@@ -1,4 +1,4 @@
-import { createCaller } from '../../trpc/routers/app.router.js';
+import { createCaller, type RouterOutput } from '../../trpc/routers/app.router.js';
 import { trpcServerErrorHandler } from '../../trpc/trpcErrorhandler.js';
 
 export const load = async (event) => {
@@ -8,9 +8,9 @@ export const load = async (event) => {
 	const trpc = await createCaller(event);
 	const { report } = id
 		? await trpc.report.getById({ id }).catch(trpcServerErrorHandler)
-		: {
+		: ({
 				report: {
-					id: undefined,
+					id: '',
 					name: '',
 					slug: '',
 					description: '',
@@ -18,7 +18,7 @@ export const load = async (event) => {
 					userId: '',
 					datasets: []
 				}
-		  };
+		  } as RouterOutput['report']['getById']);
 	const { databases } = await trpc.database.getAll().catch(trpcServerErrorHandler);
 
 	return { report, databases };
