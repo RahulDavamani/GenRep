@@ -26,94 +26,100 @@ export const reportRouter = router({
 
 	save: authProcedure
 		.input(upsertReportSchema)
-		.query(async ({ ctx: { session }, input: { id, name, description, theme, datasets, cardComponents } }) => {
-			// Report
-			const report = await prisma.report.upsert({
-				where: { id: id ?? '' },
-				create: {
-					userId: session.user_id,
-					name,
-					description,
-					theme
-				},
-				update: {
-					name,
-					description,
-					theme
+		.query(
+			async ({ ctx: { session }, input: { id, name, description, theme, canvasHeight, datasets, cardComponents } }) => {
+				// Report
+				const report = await prisma.report.upsert({
+					where: { id: id ?? '' },
+					create: {
+						userId: session.user_id,
+						name,
+						description,
+						theme,
+						canvasHeight
+					},
+					update: {
+						name,
+						description,
+						theme,
+						canvasHeight
+					}
+				});
+
+				// Datasets
+				const existingDatasets = await prisma.dataset.findMany({
+					where: { reportId: id ?? '' },
+					select: { id: true }
+				});
+				const deleteDatasetsId = existingDatasets
+					.filter((ed) => !datasets.find((d) => ed.id === d.id))
+					.map((d) => d.id);
+
+				await prisma.dataset.deleteMany({ where: { id: { in: deleteDatasetsId } } });
+				for (const { id, databaseId, name, query } of datasets) {
+					await prisma.dataset.upsert({
+						where: { id },
+						create: {
+							reportId: report.id,
+							databaseId,
+							name,
+							query
+						},
+						update: {
+							databaseId,
+							name,
+							query
+						}
+					});
 				}
-			});
 
-			// Datasets
-			const existingDatasets = await prisma.dataset.findMany({
-				where: { reportId: id ?? '' },
-				select: { id: true }
-			});
-			const deleteDatasetsId = existingDatasets.filter((ed) => !datasets.find((d) => ed.id === d.id)).map((d) => d.id);
-
-			await prisma.dataset.deleteMany({ where: { id: { in: deleteDatasetsId } } });
-			for (const { id, databaseId, name, query } of datasets) {
-				await prisma.dataset.upsert({
-					where: { id },
-					create: {
-						reportId: report.id,
-						databaseId,
-						name,
-						query
-					},
-					update: {
-						databaseId,
-						name,
-						query
-					}
+				// Card Components
+				const existingCardComponents = await prisma.cardComponent.findMany({
+					where: { reportId: id ?? '' },
+					select: { id: true }
 				});
+				const deleteCardComponents = existingCardComponents
+					.filter((ecc) => !cardComponents.find((cc) => ecc.id === cc.id))
+					.map((d) => d.id);
+
+				await prisma.cardComponent.deleteMany({ where: { id: { in: deleteCardComponents } } });
+				for (const {
+					id,
+					datasetId,
+					name,
+					title,
+					column,
+					rowNumber,
+					properties: { id: propertiesId, x, y, width, height }
+				} of cardComponents) {
+					const componentProperties = await prisma.componentProperties.upsert({
+						where: { id: propertiesId },
+						create: { x, y, width, height },
+						update: { x, y, width, height }
+					});
+
+					await prisma.cardComponent.upsert({
+						where: { id },
+						create: {
+							reportId: report.id,
+							datasetId,
+							name,
+							title,
+							column,
+							rowNumber,
+							propertiesId: componentProperties.id
+						},
+						update: {
+							datasetId,
+							name,
+							title,
+							column,
+							rowNumber
+						}
+					});
+				}
+
+				return { report };
 			}
-
-			// Card Components
-			const existingCardComponents = await prisma.cardComponent.findMany({
-				where: { reportId: id ?? '' },
-				select: { id: true }
-			});
-			const deleteCardComponents = existingCardComponents
-				.filter((ecc) => !cardComponents.find((cc) => ecc.id === cc.id))
-				.map((d) => d.id);
-
-			await prisma.cardComponent.deleteMany({ where: { id: { in: deleteCardComponents } } });
-			for (const {
-				id,
-				datasetId,
-				name,
-				title,
-				column,
-				rowNumber,
-				properties: { id: propertiesId, x, y, width, height, bgColor, textColor }
-			} of cardComponents) {
-				const componentProperties = await prisma.componentProperties.upsert({
-					where: { id: propertiesId },
-					create: { x, y, width, height, bgColor, textColor },
-					update: { x, y, width, height, bgColor, textColor }
-				});
-
-				await prisma.cardComponent.upsert({
-					where: { id },
-					create: {
-						reportId: report.id,
-						datasetId,
-						name,
-						title,
-						column,
-						rowNumber,
-						propertiesId: componentProperties.id
-					},
-					update: {
-						datasetId,
-						name,
-						title,
-						column,
-						rowNumber
-					}
-				});
-			}
-
-			return { report };
-		})
+		)
 });

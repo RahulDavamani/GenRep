@@ -19,9 +19,7 @@ export const upsertCardComponentSchema = z.object({
 		x: z.number(),
 		y: z.number(),
 		width: z.number(),
-		height: z.number(),
-		bgColor: z.string().min(1),
-		textColor: z.string().min(1)
+		height: z.number()
 	})
 });
 
@@ -30,9 +28,11 @@ export const upsertReportSchema = z.object({
 	name: z.string().min(1),
 	description: z.string(),
 	theme: z.string().min(1),
+	canvasHeight: z.number(),
 	datasets: z.array(upsertDatasetSchema),
 	cardComponents: z.array(upsertCardComponentSchema)
 });
 export type UpsertReport = z.infer<typeof upsertReportSchema>;
 export type UpsertDataset = z.infer<typeof upsertDatasetSchema>;
 export type UpsertCardComponent = z.infer<typeof upsertCardComponentSchema>;
+export type UpsertProperties = UpsertCardComponent['properties'];

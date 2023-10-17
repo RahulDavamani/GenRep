@@ -15,6 +15,7 @@ export const load = async (event) => {
 					slug: '',
 					description: '',
 					theme,
+					canvasHeight: 500,
 					userId: '',
 					datasets: [],
 					cardComponents: []

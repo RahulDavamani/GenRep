@@ -83,11 +83,12 @@ model APIKey {
 }
 
 model Report {
-   id          String @id @unique @default(nanoid())
-   name        String
-   description String
-   theme       String
-   userId      String
+   id           String @id @unique @default(nanoid())
+   name         String
+   description  String
+   theme        String
+   canvasHeight Int
+   userId       String
 
    user           User            @relation(fields: [userId], references: [id])
    datasets       Dataset[]
@@ -133,7 +134,5 @@ model ComponentProperties {
    y             Int
    width         Int
    height        Int
-   bgColor       String
-   textColor     String
    cardComponent CardComponent?
 }

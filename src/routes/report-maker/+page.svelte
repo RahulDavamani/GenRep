@@ -24,6 +24,7 @@
 				name: report.name,
 				description: report.description,
 				theme: report.theme,
+				canvasHeight: report.canvasHeight,
 				datasets: report.datasets,
 				cardComponents: report.cardComponents
 			},

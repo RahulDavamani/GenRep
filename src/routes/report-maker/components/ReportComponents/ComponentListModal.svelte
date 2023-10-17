@@ -19,9 +19,7 @@
 				x: 500,
 				y: 0,
 				width: 200,
-				height: 200,
-				bgColor: 'white',
-				textColor: 'black'
+				height: 200
 			}
 		};
 		closeModal();

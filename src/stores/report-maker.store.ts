@@ -20,6 +20,7 @@ export const reportMaker = (() => {
 			name: '',
 			description: '',
 			theme: '',
+			canvasHeight: 0,
 			datasets: [],
 			cardComponents: []
 		},
