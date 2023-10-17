@@ -1,20 +1,19 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import { formatZodErrors, type TRPCZodError, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
+	import { formatZodErrors, type TRPCZodError, type TRPCZodErrors } from '../../../../trpc/trpcErrorhandler';
 	import { page } from '$app/stores';
-	import type { PageData } from '../$types';
-	import { databaseProviders } from '../../../data/databaseProviders';
-	import type { UpsertReport } from '../../../trpc/routers/report.router';
-	import { z } from 'zod';
+	import type { PageData } from '../../$types';
+	import { databaseProviders } from '../../../../data/databaseProviders';
 	import { nanoid } from 'nanoid';
-	import { reportMaker } from '../../../stores/report-maker.store';
+	import { reportMaker } from '../../../../stores/report-maker.store';
 	import { getQueryParams } from '$lib/client/queryParams';
+	import { upsertDatasetSchema, type UpsertDataset } from '$lib/reportSchema';
 
-	export let upsertDataset: UpsertReport['datasets'][number] | undefined;
+	export let upsertDataset: UpsertDataset | undefined;
 
 	$: ({ databases } = $page.data as PageData);
 
-	let zodErrors: TRPCZodErrors<UpsertReport['datasets'][number]> | undefined;
+	let zodErrors: TRPCZodErrors<UpsertDataset> | undefined;
 
 	$: queryParams = getQueryParams(upsertDataset?.query ?? '');
 
@@ -24,12 +23,6 @@
 	};
 
 	const submit = () => {
-		const upsertDatasetSchema = z.object({
-			id: z.string().optional(),
-			databaseId: z.string().min(1).nullish(),
-			name: z.string().min(1),
-			query: z.string().min(1)
-		});
 		const result = upsertDatasetSchema.safeParse(upsertDataset);
 
 		if (result.success) {
@@ -42,7 +35,7 @@
 				$reportMaker.upsertReport.datasets = [...$reportMaker.upsertReport.datasets, result.data];
 			}
 			closeModal();
-		} else zodErrors = formatZodErrors<UpsertReport['datasets'][number]>(result.error.errors as TRPCZodError[]);
+		} else zodErrors = formatZodErrors<UpsertDataset>(result.error.errors as TRPCZodError[]);
 	};
 </script>
 
@@ -51,10 +44,10 @@
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
 				<div class="text-lg font-semibold">
-					{#if upsertDataset.id}
-						Update Dataset
-					{:else}
+					{#if upsertDataset.id === ''}
 						Create New Dataset
+					{:else}
+						Update Dataset
 					{/if}
 				</div>
 				<button on:click={closeModal}>
@@ -115,10 +108,10 @@
 			<div class="modal-action mt-6">
 				<button class="btn btn-error w-24" on:click={closeModal}>Cancel</button>
 				<button class="btn btn-success w-24" on:click={submit}>
-					{#if upsertDataset.id}
-						Update
-					{:else}
+					{#if upsertDataset.id === ''}
 						Create
+					{:else}
+						Update
 					{/if}
 				</button>
 			</div>

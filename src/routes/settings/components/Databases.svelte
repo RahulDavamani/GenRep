@@ -99,9 +99,9 @@
 			{#each databases as db}
 				{@const { id, name, provider, connectionType, connectionString, connectionOption } = db}
 				{@const providerName = databaseProviders.find((dbp) => dbp.client === provider)?.name}
-				<tr>
+				<tr class="hover">
 					<td class="w-1">
-						<button on:click={() => showUpdateDatabaseModal(db)} class="flex">
+						<button on:click={() => showUpdateDatabaseModal(db)}>
 							<Icon icon="mdi:square-edit-outline" width={20} class="text-info" />
 						</button>
 					</td>
@@ -115,7 +115,7 @@
 						</button>
 					</td>
 					<td class="w-1">
-						<button on:click={() => showDeleteDatabaseModal(id)} class="flex">
+						<button on:click={() => showDeleteDatabaseModal(id)}>
 							<Icon icon="mdi:delete-forever" width={22} class="text-error" />
 						</button>
 					</td>

@@ -6,10 +6,12 @@
 	import { ui } from '../../stores/ui.store.js';
 	import { invalidateAll } from '$app/navigation';
 	import ReportForm from './components/ReportForm.svelte';
-	import Datasets from './components/Datasets.svelte';
-	import type { UpsertReport } from '../../trpc/routers/report.router.js';
+	import Datasets from './components/Datasets/Datasets.svelte';
 	import { onMount } from 'svelte';
 	import { reportMaker } from '../../stores/report-maker.store.js';
+	import Components from './components/ReportComponents/Components.svelte';
+	import ReportCanvas from './components/ReportCanvas.svelte';
+	import type { UpsertReport } from '$lib/reportSchema.js';
 
 	export let data;
 	let { report } = data;
@@ -22,7 +24,8 @@
 				name: report.name,
 				description: report.description,
 				theme: report.theme,
-				datasets: report.datasets
+				datasets: report.datasets,
+				cardComponents: report.cardComponents
 			},
 			dbDatas: []
 		};
@@ -55,9 +58,11 @@
 	</div>
 	<div class="border shadow rounded-box">
 		<ReportForm {zodErrors} />
-
 		<div class="divider m-0" />
 		<Datasets />
+		<div class="divider m-0" />
+		<Components />
 	</div>
-	<!-- <div class=" border mt-5 shadow rounded-box p-2 h-full">hello</div> -->
+
+	<ReportCanvas />
 </div>

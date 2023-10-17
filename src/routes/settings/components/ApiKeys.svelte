@@ -64,9 +64,9 @@
 		<tbody>
 			{#each apiKeys as apiKey}
 				{@const { id, name } = apiKey}
-				<tr>
+				<tr class="hover">
 					<td class="w-1">
-						<button on:click={() => (upsertApiKey = { ...apiKey })} class="flex">
+						<button on:click={() => (upsertApiKey = { ...apiKey })}>
 							<Icon icon="mdi:square-edit-outline" width={20} class="text-info" />
 						</button>
 					</td>
@@ -88,7 +88,7 @@
 						</button>
 					</td>
 					<td class="w-1">
-						<button on:click={() => showDeleteKeyModal(id)} class="flex">
+						<button on:click={() => showDeleteKeyModal(id)}>
 							<Icon icon="mdi:delete-forever" width={22} class="text-error" />
 						</button>
 					</td>

@@ -1,5 +1,5 @@
+import type { UpsertReport } from '$lib/reportSchema';
 import { writable } from 'svelte/store';
-import type { UpsertReport } from '../trpc/routers/report.router';
 
 export interface DBData {
 	datasetId: string;
@@ -16,11 +16,12 @@ export interface ReportMaker {
 export const reportMaker = (() => {
 	const { subscribe, set, update } = writable<ReportMaker>({
 		upsertReport: {
-			id: undefined,
+			id: '',
 			name: '',
 			description: '',
 			theme: '',
-			datasets: []
+			datasets: [],
+			cardComponents: []
 		},
 		dbDatas: []
 	});

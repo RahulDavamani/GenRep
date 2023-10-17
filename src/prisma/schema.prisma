@@ -111,16 +111,17 @@ model Dataset {
 }
 
 model CardComponent {
-   id           String @id @unique @default(nanoid())
+   id           String  @id @unique @default(nanoid())
    name         String
    title        String
    column       String
-   reportId     String @unique
-   reportDataId String
-   propertiesId String @unique
+   rowNumber    Int
+   reportId     String
+   datasetId    String?
+   propertiesId String  @unique
 
    report     Report              @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-   dataset    Dataset             @relation(fields: [reportDataId], references: [id])
+   dataset    Dataset?            @relation(fields: [datasetId], references: [id])
    properties ComponentProperties @relation(fields: [propertiesId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
    @@unique([reportId, name])

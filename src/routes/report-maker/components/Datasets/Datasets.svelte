@@ -1,17 +1,17 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import type { UpsertDataset, UpsertReport } from '../../../trpc/routers/report.router';
 	import UpsertDatasetModal from './UpsertDatasetModal.svelte';
 	import { page } from '$app/stores';
-	import type { PageData } from '../$types';
-	import { databaseProviders } from '../../../data/databaseProviders';
-	import { reportMaker, type DBData } from '../../../stores/report-maker.store';
+	import type { PageData } from '../../$types';
+	import { databaseProviders } from '../../../../data/databaseProviders';
+	import { reportMaker, type DBData } from '../../../../stores/report-maker.store';
 	import { getQueryParams, highlightQueryParams } from '$lib/client/queryParams';
-	import { trpc } from '../../../trpc/client';
-	import { trpcClientErrorHandler } from '../../../trpc/trpcErrorhandler';
-	import { ui } from '../../../stores/ui.store';
+	import { trpc } from '../../../../trpc/client';
+	import { trpcClientErrorHandler } from '../../../../trpc/trpcErrorhandler';
+	import { ui } from '../../../../stores/ui.store';
 	import FetchQueryParams from './FetchQueryParams.svelte';
-	import ViewDataset from './ViewDataset.svelte';
+	import ViewDataset from '../ViewDataset.svelte';
+	import type { UpsertDataset } from '$lib/reportSchema';
 
 	$: ({ databases } = $page.data as PageData);
 	$: ({ datasets } = $reportMaker.upsertReport);
@@ -22,7 +22,7 @@
 
 	const showAddDatasetModal = () =>
 		(upsertDataset = {
-			id: undefined,
+			id: '',
 			databaseId: undefined,
 			name: '',
 			query: ''
@@ -72,7 +72,7 @@
 						<th>Database</th>
 						<th>Query</th>
 						<th>DB Data</th>
-						<th colspan="2" class="text-end">
+						<th colspan="2">
 							<button class="btn btn-xs btn-success w-full" on:click={showAddDatasetModal}>
 								<Icon icon="mdi:plus-circle" width={14} /> Create New Dataset
 							</button>

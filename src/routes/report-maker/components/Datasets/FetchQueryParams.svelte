@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getQueryParamsObj, highlightQueryParams, replaceQueryParams } from '$lib/client/queryParams';
 	import Icon from '@iconify/svelte';
-	import type { UpsertDataset } from '../../../trpc/routers/report.router';
+	import type { UpsertDataset } from '../../../../trpc/routers/report.router';
 
 	export let fetchParamsDataset: UpsertDataset | undefined;
 	export let queryData: (dataset: UpsertDataset) => Promise<void>;

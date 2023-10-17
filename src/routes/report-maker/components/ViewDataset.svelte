@@ -29,7 +29,7 @@
 					</thead>
 					<tbody>
 						{#each dbData.data as data}
-							<tr>
+							<tr class="hover">
 								{#each Object.values(data) as value}
 									<td>{value}</td>
 								{/each}

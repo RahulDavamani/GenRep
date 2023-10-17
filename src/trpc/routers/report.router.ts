@@ -1,23 +1,7 @@
 import { z } from 'zod';
 import { authProcedure, router } from '../trpc';
 import prismaErrorHandler from '../../prisma/prismaErrorHandler';
-
-export const upsertReportSchema = z.object({
-	id: z.string().optional(),
-	name: z.string().min(1),
-	description: z.string(),
-	theme: z.string().min(1),
-	datasets: z.array(
-		z.object({
-			id: z.string().optional(),
-			databaseId: z.string().min(1).nullish(),
-			name: z.string().min(1),
-			query: z.string().min(1)
-		})
-	)
-});
-export type UpsertReport = z.infer<typeof upsertReportSchema>;
-export type UpsertDataset = UpsertReport['datasets'][number];
+import { upsertReportSchema } from '$lib/reportSchema';
 
 export const reportRouter = router({
 	getAll: authProcedure.query(async ({ ctx: { session } }) => {
@@ -34,7 +18,7 @@ export const reportRouter = router({
 			const report = await prisma.report
 				.findUniqueOrThrow({
 					where: { id, userId: session.user_id },
-					include: { datasets: true }
+					include: { datasets: true, cardComponents: { include: { properties: true } } }
 				})
 				.catch(prismaErrorHandler);
 			return { report };
@@ -42,50 +26,94 @@ export const reportRouter = router({
 
 	save: authProcedure
 		.input(upsertReportSchema)
-		.query(async ({ ctx: { session }, input: { id, name, description, theme, datasets } }) => {
-			const existingDatasets = await prisma.dataset.findMany({
-				where: { reportId: id ?? '' },
-				select: { id: true }
-			});
-			const deleteDatasets = existingDatasets.filter((ed) => !datasets.find((d) => ed.id === d.id));
-
+		.query(async ({ ctx: { session }, input: { id, name, description, theme, datasets, cardComponents } }) => {
+			// Report
 			const report = await prisma.report.upsert({
 				where: { id: id ?? '' },
 				create: {
 					userId: session.user_id,
 					name,
 					description,
-					theme,
-					datasets: {
-						create: datasets.map(({ databaseId, name, query }) => ({
-							databaseId,
-							name,
-							query
-						}))
-					}
+					theme
 				},
 				update: {
 					name,
 					description,
-					theme,
-					datasets: {
-						upsert: datasets.map(({ id, databaseId, name, query }) => ({
-							where: { id: id ?? '' },
-							create: {
-								databaseId,
-								name,
-								query
-							},
-							update: {
-								databaseId,
-								name,
-								query
-							}
-						})),
-						deleteMany: deleteDatasets.map(({ id }) => ({ id }))
-					}
+					theme
 				}
 			});
+
+			// Datasets
+			const existingDatasets = await prisma.dataset.findMany({
+				where: { reportId: id ?? '' },
+				select: { id: true }
+			});
+			const deleteDatasetsId = existingDatasets.filter((ed) => !datasets.find((d) => ed.id === d.id)).map((d) => d.id);
+
+			await prisma.dataset.deleteMany({ where: { id: { in: deleteDatasetsId } } });
+			for (const { id, databaseId, name, query } of datasets) {
+				await prisma.dataset.upsert({
+					where: { id },
+					create: {
+						reportId: report.id,
+						databaseId,
+						name,
+						query
+					},
+					update: {
+						databaseId,
+						name,
+						query
+					}
+				});
+			}
+
+			// Card Components
+			const existingCardComponents = await prisma.cardComponent.findMany({
+				where: { reportId: id ?? '' },
+				select: { id: true }
+			});
+			const deleteCardComponents = existingCardComponents
+				.filter((ecc) => !cardComponents.find((cc) => ecc.id === cc.id))
+				.map((d) => d.id);
+
+			await prisma.cardComponent.deleteMany({ where: { id: { in: deleteCardComponents } } });
+			for (const {
+				id,
+				datasetId,
+				name,
+				title,
+				column,
+				rowNumber,
+				properties: { id: propertiesId, x, y, width, height, bgColor, textColor }
+			} of cardComponents) {
+				const componentProperties = await prisma.componentProperties.upsert({
+					where: { id: propertiesId },
+					create: { x, y, width, height, bgColor, textColor },
+					update: { x, y, width, height, bgColor, textColor }
+				});
+
+				await prisma.cardComponent.upsert({
+					where: { id },
+					create: {
+						reportId: report.id,
+						datasetId,
+						name,
+						title,
+						column,
+						rowNumber,
+						propertiesId: componentProperties.id
+					},
+					update: {
+						datasetId,
+						name,
+						title,
+						column,
+						rowNumber
+					}
+				});
+			}
+
 			return { report };
 		})
 });

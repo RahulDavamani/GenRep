@@ -14,7 +14,7 @@
 	<input type="checkbox" class="peer" checked={true} />
 	<div class="collapse-title">
 		<div class="flex items-center gap-2 text-lg font-semibold">
-			<Icon icon="material-symbols:data-table-outline-rounded" />
+			<Icon icon="mdi:tune" />
 			Properties:
 		</div>
 	</div>

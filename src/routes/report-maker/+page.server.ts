@@ -16,7 +16,8 @@ export const load = async (event) => {
 					description: '',
 					theme,
 					userId: '',
-					datasets: []
+					datasets: [],
+					cardComponents: []
 				}
 		  } as RouterOutput['report']['getById']);
 	const { databases } = await trpc.database.getAll().catch(trpcServerErrorHandler);
