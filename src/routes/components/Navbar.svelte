@@ -19,7 +19,7 @@
 			<div tabindex={0} class="btn btn-ghost btn-circle avatar p-1">
 				<img src={session?.user_picture} alt="DP" class="rounded-full" />
 			</div>
-			<div tabindex={0} class="dropdown-content mt-4 z-[1] bg-base-100 border shadow rounded-box w-64">
+			<div tabindex={0} class="dropdown-content mt-4 z-[50] bg-base-100 border shadow rounded-box w-64">
 				<div class="p-5 pb-2">
 					<div class="font-semibold">{session?.user.name}</div>
 					<div class="italic">{session?.user.email}</div>

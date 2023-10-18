@@ -1,39 +1,30 @@
 <script lang="ts">
-	import { upsertCardComponentSchema, type UpsertCardComponent } from '$lib/reportSchema';
 	import Icon from '@iconify/svelte';
 	import { reportMaker } from '../../../../stores/report-maker.store';
-	import { nanoid } from 'nanoid';
+	import { upsertCardComponentSchema, type UpsertCardComponent } from '$lib/reportSchema';
 	import { formatZodErrors, type TRPCZodError, type TRPCZodErrors } from '../../../../trpc/trpcErrorhandler';
 
-	export let upsertCardComponent: UpsertCardComponent | undefined;
-
-	$: ({ dbDatas, upsertReport } = $reportMaker);
-	$: dbData = dbDatas.find((d) => d.datasetId === upsertCardComponent?.datasetId);
+	$: ({ upsertReport, dbData, upsertCardComponent } = $reportMaker);
+	$: data = $reportMaker.dbData[$reportMaker.upsertCardComponent?.id ?? ''];
 
 	let zodErrors: TRPCZodErrors<UpsertCardComponent> | undefined;
 
-	const closeModal = () => (upsertCardComponent = undefined);
+	const closeModal = () => {
+		$reportMaker.upsertCardComponent = undefined;
+		zodErrors = undefined;
+	};
 
 	const submit = () => {
 		const result = upsertCardComponentSchema.safeParse(upsertCardComponent);
-
-		if (result.success) {
-			if (upsertCardComponent?.id)
-				$reportMaker.upsertReport.cardComponents = upsertReport.cardComponents.map((ds) =>
-					ds.id === upsertCardComponent?.id ? result.data : ds
-				);
-			else {
-				result.data.id = nanoid();
-				result.data.properties.id = nanoid();
-				$reportMaker.upsertReport.cardComponents = [...upsertReport.cardComponents, result.data];
-			}
-			closeModal();
-		} else zodErrors = formatZodErrors<UpsertCardComponent>(result.error.errors as TRPCZodError[]);
+		if (result.success) reportMaker.submitDataset();
+		zodErrors = result.success
+			? undefined
+			: formatZodErrors<UpsertCardComponent>(result.error.errors as TRPCZodError[]);
 	};
 </script>
 
-{#if upsertCardComponent}
-	{@const { id, name, title, column, rowNumber, datasetId } = upsertCardComponent}
+{#if $reportMaker.upsertCardComponent}
+	{@const { id, name, title, column, rowNumber, datasetId } = $reportMaker.upsertCardComponent}
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
@@ -55,7 +46,7 @@
 					type="text"
 					placeholder="Type here"
 					class="input input-bordered {zodErrors?.name && 'input-error'}"
-					bind:value={upsertCardComponent.name}
+					bind:value={$reportMaker.upsertCardComponent.name}
 				/>
 				{#if zodErrors?.name}
 					<div class="label text-xs text-error">{zodErrors.name.message}</div>
@@ -64,13 +55,11 @@
 
 			<div class="form-control mb-1">
 				<div class="label font-semibold">Dataset</div>
-				<select class="select select-bordered" bind:value={upsertCardComponent.datasetId}>
+				<select class="select select-bordered" bind:value={$reportMaker.upsertCardComponent.datasetId}>
 					<option value="" selected disabled>Select an option</option>
-					{#each dbDatas as { datasetId, data }}
-						{#if data}
-							{@const datasetName = upsertReport.datasets.find((d) => d.id === datasetId)?.name}
-							<option value={datasetId}>{datasetName}</option>
-						{/if}
+					{#each Object.keys(dbData) as datasetId}
+						{@const datasetName = upsertReport.datasets.find((d) => d.id === datasetId)?.name}
+						<option value={datasetId}>{datasetName}</option>
 					{/each}
 				</select>
 			</div>
@@ -81,7 +70,7 @@
 					type="text"
 					placeholder="Type here"
 					class="input input-bordered {zodErrors?.title && 'input-error'}"
-					bind:value={upsertCardComponent.title}
+					bind:value={$reportMaker.upsertCardComponent.title}
 				/>
 				{#if zodErrors?.title}
 					<div class="label text-xs text-error">{zodErrors.title.message}</div>
@@ -92,16 +81,16 @@
 				<div class="label font-semibold">Column Name</div>
 				<select
 					class="select select-bordered {zodErrors?.column && 'select-error'}"
-					bind:value={upsertCardComponent.column}
+					bind:value={$reportMaker.upsertCardComponent.column}
 				>
 					<option value="" selected disabled>Select an option</option>
-					{#if dbData?.data}
-						{#each Object.keys(dbData.data[0]) as column}
+					{#if data}
+						{#each Object.keys(data[0]) as column}
 							<option value={column}>{column}</option>
 						{/each}
 					{/if}
 				</select>
-				{#if !dbData}
+				{#if !data}
 					<div class="label text-xs text-error">Select a dataset to get columns</div>
 				{/if}
 				{#if zodErrors?.column}
@@ -115,7 +104,7 @@
 					type="number"
 					placeholder="Type here"
 					class="input input-bordered {zodErrors?.rowNumber && 'input-error'}"
-					bind:value={upsertCardComponent.rowNumber}
+					bind:value={$reportMaker.upsertCardComponent.rowNumber}
 				/>
 				{#if zodErrors?.rowNumber}
 					<div class="label text-xs text-error">{zodErrors.rowNumber.message}</div>
@@ -125,7 +114,7 @@
 			<div class="modal-action mt-6">
 				<button class="btn btn-error w-24" on:click={closeModal}>Cancel</button>
 				<button class="btn btn-success w-24" on:click={submit}>
-					{#if upsertCardComponent.id === ''}
+					{#if id === ''}
 						Create
 					{:else}
 						Update

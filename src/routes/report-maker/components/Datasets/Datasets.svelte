@@ -4,54 +4,12 @@
 	import { page } from '$app/stores';
 	import type { PageData } from '../../$types';
 	import { databaseProviders } from '../../../../data/databaseProviders';
-	import { reportMaker, type DBData } from '../../../../stores/report-maker.store';
-	import { getQueryParams, highlightQueryParams } from '$lib/client/queryParams';
-	import { trpc } from '../../../../trpc/client';
-	import { trpcClientErrorHandler } from '../../../../trpc/trpcErrorhandler';
-	import { ui } from '../../../../stores/ui.store';
-	import FetchQueryParams from './FetchQueryParams.svelte';
+	import { reportMaker } from '../../../../stores/report-maker.store';
+	import { highlightQueryParams, replaceQueryParams } from '$lib/client/queryParams';
 	import ViewDataset from '../ViewDataset.svelte';
-	import type { UpsertDataset } from '$lib/reportSchema';
 
 	$: ({ databases } = $page.data as PageData);
 	$: ({ datasets } = $reportMaker.upsertReport);
-
-	let upsertDataset: UpsertDataset | undefined;
-	let fetchParamsDataset: UpsertDataset | undefined;
-	let viewDataset: UpsertDataset | undefined;
-
-	const showAddDatasetModal = () =>
-		(upsertDataset = {
-			id: '',
-			databaseId: undefined,
-			name: '',
-			query: ''
-		});
-
-	const deleteDataset = (id: string) => ($reportMaker.upsertReport.datasets = datasets.filter((ds) => ds.id !== id));
-
-	const fetchData = async (dataset: UpsertDataset) => {
-		if (getQueryParams(dataset.query).length === 0) return queryData(dataset);
-		else fetchParamsDataset = dataset;
-	};
-
-	const queryData = async ({ id, databaseId, name, query }: UpsertDataset) => {
-		$ui.loader = { title: `Fetching Data of ${name}` };
-		const { data } = await trpc($page)
-			.database.queryData.query({ id: databaseId ?? '', query: query })
-			.catch(trpcClientErrorHandler);
-
-		let dbData: DBData = {
-			datasetId: id ?? '',
-			resultQuery: query,
-			queryParams: {},
-			data
-		};
-		let i = $reportMaker.dbDatas.findIndex((dbd) => dbd.datasetId === id);
-		if (i >= 0) $reportMaker.dbDatas[i] = dbData;
-		else $reportMaker.dbDatas = [...$reportMaker.dbDatas, dbData];
-		$ui.loader = undefined;
-	};
 </script>
 
 <div class="collapse collapse-arrow">
@@ -73,48 +31,45 @@
 						<th>Query</th>
 						<th>DB Data</th>
 						<th colspan="2">
-							<button class="btn btn-xs btn-success w-full" on:click={showAddDatasetModal}>
+							<button class="btn btn-xs btn-success w-full" on:click={reportMaker.showAddDatasetModal}>
 								<Icon icon="mdi:plus-circle" width={14} /> Create New Dataset
 							</button>
 						</th>
 					</tr>
 				</thead>
 				<tbody>
-					{#each datasets as { id, name, databaseId, query }}
+					{#each datasets as { id, name, databaseId, query, queryParams }}
 						{@const database = databases.find((db) => db.id === databaseId)}
 						{@const providerName = databaseProviders.find((dp) => dp.client === database?.provider)?.name}
-						{@const dbData = $reportMaker.dbDatas.find((dbd) => dbd.datasetId === id)}
+						{@const resultQuery = replaceQueryParams(query, queryParams, true)}
 						<tr>
 							<td class="w-1">
-								<button on:click={() => (upsertDataset = { id, name, databaseId, query })} class="flex">
+								<button
+									on:click={() => ($reportMaker.upsertDataset = { id, name, databaseId, query, queryParams })}
+									class="flex"
+								>
 									<Icon icon="mdi:square-edit-outline" width={20} class="text-info" />
 								</button>
 							</td>
-							<td>{name}</td>
+							<td class="font-semibold">{name}</td>
 							<td>{database?.name} - {providerName}</td>
+							<td>{@html resultQuery}</td>
 							<td>
-								{@html highlightQueryParams(query)}
-							</td>
-							<td>
-								{#if !dbData}
+								{#if !$reportMaker.dbData[id]}
 									<div class="badge badge-neutral w-full">Not Fetched</div>
 								{:else}
-									<button
-										class="btn btn-xs btn-success w-full"
-										on:click={() => (viewDataset = { id, name, databaseId, query })}>View Data</button
-									>
+									<button class="btn btn-xs btn-success w-full" on:click={() => ($reportMaker.viewDatasetId = id)}>
+										View Data
+									</button>
 								{/if}
 							</td>
 							<td class="w-44">
-								<button
-									class="btn btn-xs btn-primary w-full"
-									on:click={() => fetchData({ id, name, databaseId, query })}
-								>
+								<button class="btn btn-xs btn-primary w-full" on:click={() => reportMaker.fetchDataset(id)}>
 									Fetch Data
 								</button>
 							</td>
 							<td class="w-1">
-								<button on:click={() => deleteDataset(id ?? '')}>
+								<button on:click={() => reportMaker.deleteDataset(id ?? '')}>
 									<Icon icon="mdi:delete-forever" width={22} class="text-error" />
 								</button>
 							</td>
@@ -126,6 +81,5 @@
 	</div>
 </div>
 
-<UpsertDatasetModal bind:upsertDataset />
-<FetchQueryParams bind:fetchParamsDataset {queryData} />
-<ViewDataset bind:viewDataset />
+<UpsertDatasetModal />
+<ViewDataset />

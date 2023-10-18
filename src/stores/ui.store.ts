@@ -34,6 +34,7 @@ export const ui = (() => {
 
 	// Methods
 
+	const setLoader = (loader?: Loader) => update((state) => ({ ...state, loader }));
 	const setTheme = (theme: string) => document.querySelector('html')?.setAttribute('data-theme', theme);
 
 	const showToast = (toast: Toast) => {
@@ -58,6 +59,7 @@ export const ui = (() => {
 		subscribe,
 		set,
 		update,
+		setLoader,
 		setTheme,
 		showToast,
 		closeToast

@@ -1,20 +1,23 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { reportMaker } from '../../../stores/report-maker.store';
-	import type { UpsertDataset } from '../../../trpc/routers/report.router';
 
-	export let viewDataset: UpsertDataset | undefined;
-	$: dbData = $reportMaker.dbDatas.find((dbd) => dbd.datasetId === viewDataset?.id);
-	const closeModal = () => (viewDataset = undefined);
+	$: ({
+		upsertReport: { datasets },
+		dbData,
+		viewDatasetId
+	} = $reportMaker);
+	$: dataset = datasets.find((d) => d.id === viewDatasetId);
+	$: data = dbData[viewDatasetId ?? ''];
 </script>
 
-{#if viewDataset && dbData?.data}
-	{@const { name } = viewDataset}
+{#if dataset && data}
+	{@const { name } = dataset}
 	<div class="modal modal-open">
 		<div class="modal-box max-w-full">
 			<div class="flex justify-between items-center mb-6">
 				<div class="text-xl font-bold">{name}</div>
-				<button on:click={closeModal}>
+				<button on:click={() => ($reportMaker.viewDatasetId = undefined)}>
 					<Icon icon="mdi:close" class="cursor-pointer text-error" width={20} />
 				</button>
 			</div>
@@ -22,15 +25,15 @@
 				<table class="table table-xs">
 					<thead>
 						<tr>
-							{#each Object.keys(dbData.data[0]) as key}
+							{#each Object.keys(data[0]) as key}
 								<th>{key}</th>
 							{/each}
 						</tr>
 					</thead>
 					<tbody>
-						{#each dbData.data as data}
+						{#each data as row}
 							<tr class="hover">
-								{#each Object.values(data) as value}
+								{#each Object.values(row) as value}
 									<td>{value}</td>
 								{/each}
 							</tr>

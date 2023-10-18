@@ -4,47 +4,34 @@
 	import { page } from '$app/stores';
 	import type { PageData } from '../../$types';
 	import { databaseProviders } from '../../../../data/databaseProviders';
-	import { nanoid } from 'nanoid';
 	import { reportMaker } from '../../../../stores/report-maker.store';
-	import { getQueryParams } from '$lib/client/queryParams';
 	import { upsertDatasetSchema, type UpsertDataset } from '$lib/reportSchema';
-
-	export let upsertDataset: UpsertDataset | undefined;
+	import { replaceQueryParams } from '$lib/client/queryParams';
 
 	$: ({ databases } = $page.data as PageData);
+	$: ({ upsertDataset } = $reportMaker);
 
 	let zodErrors: TRPCZodErrors<UpsertDataset> | undefined;
 
-	$: queryParams = getQueryParams(upsertDataset?.query ?? '');
-
 	const closeModal = () => {
-		upsertDataset = undefined;
+		$reportMaker.upsertDataset = undefined;
 		zodErrors = undefined;
 	};
 
 	const submit = () => {
 		const result = upsertDatasetSchema.safeParse(upsertDataset);
-
-		if (result.success) {
-			if (upsertDataset?.id)
-				$reportMaker.upsertReport.datasets = $reportMaker.upsertReport.datasets.map((ds) =>
-					ds.id === upsertDataset?.id ? result.data : ds
-				);
-			else {
-				result.data.id = nanoid();
-				$reportMaker.upsertReport.datasets = [...$reportMaker.upsertReport.datasets, result.data];
-			}
-			closeModal();
-		} else zodErrors = formatZodErrors<UpsertDataset>(result.error.errors as TRPCZodError[]);
+		if (result.success) reportMaker.submitDataset();
+		zodErrors = result.success ? undefined : formatZodErrors<UpsertDataset>(result.error.errors as TRPCZodError[]);
 	};
 </script>
 
-{#if upsertDataset}
+{#if upsertDataset && $reportMaker.upsertDataset}
+	{@const { id, query, queryParams } = upsertDataset}
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
 				<div class="text-lg font-semibold">
-					{#if upsertDataset.id === ''}
+					{#if id === ''}
 						Create New Dataset
 					{:else}
 						Update Dataset
@@ -61,7 +48,7 @@
 					type="text"
 					placeholder="Type here"
 					class="input input-bordered {zodErrors?.name && 'input-error'}"
-					bind:value={upsertDataset.name}
+					bind:value={$reportMaker.upsertDataset.name}
 				/>
 				{#if zodErrors?.name}
 					<div class="label text-xs text-error">{zodErrors.name.message}</div>
@@ -70,7 +57,7 @@
 
 			<div class="form-control mb-1">
 				<div class="label font-semibold">Database</div>
-				<select class="select select-bordered" bind:value={upsertDataset.databaseId}>
+				<select class="select select-bordered" bind:value={$reportMaker.upsertDataset.databaseId}>
 					{#each databases as { id, name, provider }}
 						{@const providerName = databaseProviders.find((dp) => dp.client === provider)?.name}
 						<option value={id}>{name} - {providerName}</option>
@@ -79,13 +66,12 @@
 			</div>
 
 			<div class="form-control mb-1">
-				<div class="label">
-					<div class="font-semibold">Query</div>
-				</div>
+				<div class="label font-semibold">Query</div>
 				<textarea
-					placeholder="Type here"
+					placeholder="E.g. SELECT {'${columns}'} FROM {'${table}'}"
 					class="textarea textarea-bordered {zodErrors?.query && 'textarea-error'}"
-					bind:value={upsertDataset.query}
+					on:keyup={(e) => reportMaker.watchQueryParams(e.currentTarget.value)}
+					bind:value={$reportMaker.upsertDataset.query}
 				/>
 
 				<span class="label text-xs">
@@ -96,19 +82,31 @@
 				{/if}
 			</div>
 
-			<div class="flex flex-wrap items-center gap-4">
-				<div class="label font-semibold">Query Params:</div>
-				{#each queryParams as param}
-					<div class="border shadow rounded-lg px-2">{param}</div>
-				{:else}
-					<div>No Params found in Query</div>
+			<div class="font-semibold ml-1 mt-1">Query Params:</div>
+
+			<div class="flex gap-6">
+				{#each queryParams as { key }, i}
+					<div class="form-control flex-grow">
+						<div class="label">{key}</div>
+						<input
+							type="text"
+							placeholder="Type here"
+							class="input input-sm input-bordered"
+							bind:value={$reportMaker.upsertDataset.queryParams[i].value}
+						/>
+					</div>
 				{/each}
+			</div>
+
+			<div class="mx-1 mt-4">
+				<div class="font-semibold">Result Query:</div>
+				{@html replaceQueryParams(query, queryParams, true)}
 			</div>
 
 			<div class="modal-action mt-6">
 				<button class="btn btn-error w-24" on:click={closeModal}>Cancel</button>
 				<button class="btn btn-success w-24" on:click={submit}>
-					{#if upsertDataset.id === ''}
+					{#if id === ''}
 						Create
 					{:else}
 						Update

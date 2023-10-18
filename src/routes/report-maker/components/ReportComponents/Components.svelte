@@ -3,18 +3,13 @@
 	import { reportMaker } from '../../../../stores/report-maker.store';
 	import ComponentListModal from './ComponentListModal.svelte';
 	import UpsertCardComponentModal from './UpsertCardComponentModal.svelte';
-	import type { UpsertCardComponent } from '$lib/reportSchema';
 
 	$: ({
 		upsertReport: { datasets, cardComponents }
 	} = $reportMaker);
 	$: allComponents = cardComponents;
 
-	let showComponentList = false;
-	let upsertCardComponent: UpsertCardComponent | undefined;
-
-	const deleteCardComponent = (id: string) =>
-		($reportMaker.upsertReport.cardComponents = cardComponents.filter((ds) => ds.id !== id));
+	$: ({ showComponentList, upsertCardComponent } = $reportMaker);
 </script>
 
 <div class="collapse collapse-arrow">
@@ -36,7 +31,7 @@
 						<th>Datasets</th>
 						<th>Values</th>
 						<th colspan="2">
-							<button class="btn btn-xs btn-success w-full" on:click={() => (showComponentList = true)}>
+							<button class="btn btn-xs btn-success w-full" on:click={() => ($reportMaker.showComponentList = true)}>
 								<Icon icon="mdi:plus-circle" width={14} /> Create New Component
 							</button>
 						</th>
@@ -48,12 +43,13 @@
 						<tr class="hover">
 							<td>
 								<button
-									on:click={() => (upsertCardComponent = { id, name, datasetId, title, column, rowNumber, properties })}
+									on:click={() =>
+										($reportMaker.upsertCardComponent = { id, name, datasetId, title, column, rowNumber, properties })}
 								>
 									<Icon icon="mdi:square-edit-outline" width={22} class="text-info" />
 								</button>
 							</td>
-							<td class="font-bold">{name}</td>
+							<td class="font-semibold">{name}</td>
 							<td>Card</td>
 							<td>{datasetName}</td>
 							<td class="space-x-4">
@@ -74,7 +70,7 @@
 								<button class="btn btn-xs btn-primary w-full"> Hide Component </button>
 							</td>
 							<td class="w-1">
-								<button on:click={() => deleteCardComponent(id)}>
+								<button on:click={() => reportMaker.deleteCardComponent(id)}>
 									<Icon icon="mdi:delete-forever" width={22} class="text-error" />
 								</button>
 							</td>
@@ -86,5 +82,5 @@
 	</div>
 </div>
 
-<ComponentListModal bind:showComponentList bind:upsertCardComponent />
-<UpsertCardComponentModal bind:upsertCardComponent />
+<ComponentListModal />
+<UpsertCardComponentModal />

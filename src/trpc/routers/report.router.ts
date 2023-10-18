@@ -18,7 +18,10 @@ export const reportRouter = router({
 			const report = await prisma.report
 				.findUniqueOrThrow({
 					where: { id, userId: session.user_id },
-					include: { datasets: true, cardComponents: { include: { properties: true } } }
+					include: {
+						datasets: { include: { queryParams: true } },
+						cardComponents: { include: { properties: true } }
+					}
 				})
 				.catch(prismaErrorHandler);
 			return { report };
@@ -30,7 +33,7 @@ export const reportRouter = router({
 			async ({ ctx: { session }, input: { id, name, description, theme, canvasHeight, datasets, cardComponents } }) => {
 				// Report
 				const report = await prisma.report.upsert({
-					where: { id: id ?? '' },
+					where: { id },
 					create: {
 						userId: session.user_id,
 						name,
@@ -48,7 +51,7 @@ export const reportRouter = router({
 
 				// Datasets
 				const existingDatasets = await prisma.dataset.findMany({
-					where: { reportId: id ?? '' },
+					where: { reportId: report.id },
 					select: { id: true }
 				});
 				const deleteDatasetsId = existingDatasets
@@ -56,8 +59,8 @@ export const reportRouter = router({
 					.map((d) => d.id);
 
 				await prisma.dataset.deleteMany({ where: { id: { in: deleteDatasetsId } } });
-				for (const { id, databaseId, name, query } of datasets) {
-					await prisma.dataset.upsert({
+				for (const { id, databaseId, name, query, queryParams } of datasets) {
+					const dataset = await prisma.dataset.upsert({
 						where: { id },
 						create: {
 							reportId: report.id,
@@ -71,11 +74,28 @@ export const reportRouter = router({
 							query
 						}
 					});
+
+					const existingQueryParams = await prisma.queryParam.findMany({
+						where: { datasetId: dataset.id },
+						select: { id: true }
+					});
+					const deleteQueryParams = existingQueryParams
+						.filter((ecc) => !queryParams.find((cc) => ecc.id === cc.id))
+						.map((d) => d.id);
+
+					await prisma.queryParam.deleteMany({ where: { id: { in: deleteQueryParams } } });
+					for (const { id, key, value } of queryParams) {
+						await prisma.queryParam.upsert({
+							where: { id },
+							create: { datasetId: dataset.id, key, value },
+							update: { key, value }
+						});
+					}
 				}
 
 				// Card Components
 				const existingCardComponents = await prisma.cardComponent.findMany({
-					where: { reportId: id ?? '' },
+					where: { reportId: report.id },
 					select: { id: true }
 				});
 				const deleteCardComponents = existingCardComponents

@@ -1,13 +1,9 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import type { UpsertReport } from '../../../trpc/routers/report.router';
-	import type { TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
 	import SelectTheme from './SelectTheme.svelte';
 	import { reportMaker } from '../../../stores/report-maker.store';
 
-	export let zodErrors: TRPCZodErrors<UpsertReport> | undefined;
-
-	let showSelectTheme = false;
+	$: ({ zodErrors } = $reportMaker);
 </script>
 
 <div class="collapse collapse-arrow rounded-b-none">
@@ -38,7 +34,7 @@
 				<button
 					class="btn btn-primary w-52"
 					data-theme={$reportMaker.upsertReport.theme}
-					on:click={() => (showSelectTheme = true)}
+					on:click={() => ($reportMaker.showSelectTheme = true)}
 				>
 					{$reportMaker.upsertReport.theme}
 				</button>
@@ -59,6 +55,4 @@
 	</div>
 </div>
 
-{#if showSelectTheme}
-	<SelectTheme bind:showSelectTheme />
-{/if}
+<SelectTheme />

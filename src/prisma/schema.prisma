@@ -107,8 +107,18 @@ model Dataset {
    database       Database?       @relation(fields: [databaseId], references: [id])
    report         Report          @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
    cardComponents CardComponent[]
+   queryParams    QueryParam[]
 
    @@unique([reportId, name])
+}
+
+model QueryParam {
+   id        String @id @unique @default(nanoid())
+   key       String
+   value     String
+   datasetId String
+
+   dataset Dataset @relation(fields: [datasetId], references: [id])
 }
 
 model CardComponent {

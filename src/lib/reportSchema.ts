@@ -4,7 +4,14 @@ export const upsertDatasetSchema = z.object({
 	id: z.string(),
 	databaseId: z.string().min(1).nullish(),
 	name: z.string().min(1),
-	query: z.string().min(1)
+	query: z.string().min(1),
+	queryParams: z.array(
+		z.object({
+			id: z.string(),
+			key: z.string().min(1),
+			value: z.string()
+		})
+	)
 });
 
 export const upsertCardComponentSchema = z.object({

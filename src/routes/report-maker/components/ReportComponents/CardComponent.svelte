@@ -5,14 +5,13 @@
 	import { reportMaker } from '../../../../stores/report-maker.store';
 
 	export let cardComponent: UpsertCardComponent;
-	$: ({ id, datasetId, name, title, column, rowNumber, properties } = cardComponent);
+	$: ({ id, datasetId, title, column, rowNumber, properties } = cardComponent);
 	$: ({ x, y, width, height } = properties);
 	$: ({
 		upsertReport: { cardComponents },
-		dbDatas
+		dbData
 	} = $reportMaker);
-	$: console.log(dbDatas);
-	$: value = dbDatas.find((d) => d.datasetId == datasetId)?.data?.[rowNumber - 1][column];
+	$: value = dbData[datasetId ?? '']?.[rowNumber - 1][column];
 
 	let element: HTMLDivElement | undefined;
 	$: if (element)
