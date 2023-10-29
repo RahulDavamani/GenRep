@@ -36,7 +36,7 @@
 	<div class="modal modal-open">
 		<div class="modal-box">
 			<div class="flex justify-between items-center mb-4">
-				<div class="text-xl font-semibold">
+				<div class="text-xl font-bold">
 					{#if upsertApiKey.id}
 						Update API Key
 					{:else}

@@ -51,6 +51,7 @@ export const trpcServerErrorHandler = (e: unknown) => {
 };
 
 export const trpcErrorhandler = <T>(e: unknown): TRPCHandlerError<T> => {
+	console.log(e);
 	if (e instanceof TRPCClientError) {
 		try {
 			const errors = JSON.parse(e.message);

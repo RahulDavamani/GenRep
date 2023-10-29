@@ -5,7 +5,7 @@
 	import type { PageData } from '../../$types';
 	import { databaseProviders } from '../../../../data/databaseProviders';
 	import { reportMaker } from '../../../../stores/report-maker.store';
-	import { highlightQueryParams, replaceQueryParams } from '$lib/client/queryParams';
+	import { replaceQueryParams } from '$lib/client/queryParams';
 	import ViewDataset from '../ViewDataset.svelte';
 
 	$: ({ databases } = $page.data as PageData);
@@ -18,6 +18,9 @@
 		<div class="flex items-center gap-2 text-lg font-semibold">
 			<Icon icon="material-symbols:data-table-outline-rounded" />
 			Datasets: <span class="font-mono">({datasets.length})</span>
+			<button class="z-10 text-success" on:click={reportMaker.showAddDatasetModal}>
+				<Icon icon="mdi:add-circle" width={24} />
+			</button>
 		</div>
 	</div>
 	<div class="collapse-content">
@@ -29,12 +32,14 @@
 						<th>Name</th>
 						<th>Database</th>
 						<th>Query</th>
-						<th>DB Data</th>
-						<th colspan="2">
-							<button class="btn btn-xs btn-success w-full" on:click={reportMaker.showAddDatasetModal}>
-								<Icon icon="mdi:plus-circle" width={14} /> Create New Dataset
+						<th class="text-center">DB Data</th>
+						<th>
+							<button class="btn btn-xs btn-outline btn-primary w-full" on:click={reportMaker.fetchAllDatasets}>
+								<Icon icon="mdi:check-all" width={18} />
+								Fetch All Data
 							</button>
 						</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -54,7 +59,7 @@
 							<td class="font-semibold">{name}</td>
 							<td>{database?.name} - {providerName}</td>
 							<td>{@html resultQuery}</td>
-							<td>
+							<td class="w-40">
 								{#if !$reportMaker.dbData[id]}
 									<div class="badge badge-neutral w-full">Not Fetched</div>
 								{:else}
@@ -63,7 +68,7 @@
 									</button>
 								{/if}
 							</td>
-							<td class="w-44">
+							<td class="w-48">
 								<button class="btn btn-xs btn-primary w-full" on:click={() => reportMaker.fetchDataset(id)}>
 									Fetch Data
 								</button>

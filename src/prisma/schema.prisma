@@ -90,9 +90,10 @@ model Report {
    canvasHeight Int
    userId       String
 
-   user           User            @relation(fields: [userId], references: [id])
-   datasets       Dataset[]
-   cardComponents CardComponent[]
+   user            User             @relation(fields: [userId], references: [id])
+   datasets        Dataset[]
+   cardComponents  CardComponent[]
+   tableComponents TableComponent[]
 
    @@unique([userId, name])
 }
@@ -104,10 +105,11 @@ model Dataset {
    databaseId String?
    reportId   String
 
-   database       Database?       @relation(fields: [databaseId], references: [id])
-   report         Report          @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-   cardComponents CardComponent[]
-   queryParams    QueryParam[]
+   database        Database?        @relation(fields: [databaseId], references: [id])
+   report          Report           @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+   cardComponents  CardComponent[]
+   queryParams     QueryParam[]
+   tableComponents TableComponent[]
 
    @@unique([reportId, name])
 }
@@ -138,11 +140,35 @@ model CardComponent {
    @@unique([reportId, name])
 }
 
+model TableComponent {
+   id           String  @id @unique @default(nanoid())
+   name         String
+   title        String
+   columns      String
+   rows         String
+   reportId     String
+   datasetId    String?
+   propertiesId String  @unique
+
+   report     Report              @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+   dataset    Dataset?            @relation(fields: [datasetId], references: [id])
+   properties ComponentProperties @relation(fields: [propertiesId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+   @@unique([reportId, name])
+}
+
 model ComponentProperties {
-   id            String         @id @unique @default(nanoid())
-   x             Int
-   y             Int
-   width         Int
-   height        Int
-   cardComponent CardComponent?
+   id              String          @id @unique @default(nanoid())
+   x               Int
+   y               Int
+   width           Int
+   height          Int
+   bgColor         String
+   textColor       String
+   shadow          String
+   rounded         String
+   border          Boolean
+   outline         Boolean
+   cardComponent   CardComponent?
+   tableComponents TableComponent?
 }

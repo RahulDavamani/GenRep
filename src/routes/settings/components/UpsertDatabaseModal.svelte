@@ -43,7 +43,7 @@
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
-				<div class="text-xl font-semibold">
+				<div class="text-xl font-bold">
 					{#if upsertDatabase.id}
 						Update Database
 					{:else}

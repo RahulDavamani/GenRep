@@ -1,4 +1,4 @@
-import type { UpsertCardComponent, UpsertDataset, UpsertReport } from '$lib/reportSchema';
+import type { UpsertCardComponent, UpsertDataset, UpsertReport, UpsertTableComponent } from '$lib/reportSchema';
 import { get, writable } from 'svelte/store';
 import { trpcClientErrorHandler, type TRPCZodErrors } from '../trpc/trpcErrorhandler';
 import { trpc } from '../trpc/client';
@@ -24,9 +24,11 @@ export interface ReportMaker {
 
 	showComponentList: boolean;
 	upsertCardComponent?: UpsertCardComponent;
+	upsertTableComponent?: UpsertTableComponent;
 }
 
 export const reportMaker = (() => {
+	// State
 	const { subscribe, set, update } = writable<ReportMaker>({
 		init: false,
 		upsertReport: {
@@ -36,7 +38,8 @@ export const reportMaker = (() => {
 			theme: '',
 			canvasHeight: 0,
 			datasets: [],
-			cardComponents: []
+			cardComponents: [],
+			tableComponents: []
 		},
 		zodErrors: undefined,
 		showSelectTheme: false,
@@ -49,25 +52,25 @@ export const reportMaker = (() => {
 		upsertCardComponent: undefined
 	});
 
-	const init = (report: UpsertReport | undefined, theme: string) => {
-		let upsertReport: UpsertReport;
-		if (report) {
-			const { id, name, description, theme, canvasHeight, datasets, cardComponents } = report;
-			upsertReport = { id, name, description, theme, canvasHeight, datasets, cardComponents };
-		} else
-			upsertReport = {
+	const init = async (report: UpsertReport | undefined, theme: string) => {
+		update((state) => ({
+			...state,
+			init: true,
+			upsertReport: report ?? {
 				id: '',
 				name: '',
 				description: '',
 				theme,
 				canvasHeight: 500,
 				datasets: [],
-				cardComponents: []
-			};
-
-		update((state) => ({ ...state, init: true, upsertReport }));
+				cardComponents: [],
+				tableComponents: []
+			}
+		}));
+		await fetchAllDatasets();
 	};
 
+	// Report
 	const saveReport = async () => {
 		const $page = get(page);
 		const { upsertReport } = get(reportMaker);
@@ -86,6 +89,7 @@ export const reportMaker = (() => {
 		ui.setLoader();
 	};
 
+	// Dataset
 	const showAddDatasetModal = () =>
 		update((state) => ({
 			...state,
@@ -133,6 +137,11 @@ export const reportMaker = (() => {
 		}));
 	};
 
+	const fetchAllDatasets = async () => {
+		const datasets = get(reportMaker).upsertReport.datasets;
+		for (const { id } of datasets) await fetchDataset(id);
+	};
+
 	const fetchDataset = async (id: string) => {
 		ui.setLoader({ title: 'Fetching Dataset' });
 		const $page = get(page);
@@ -158,9 +167,11 @@ export const reportMaker = (() => {
 			upsertReport: {
 				...state.upsertReport,
 				datasets: state.upsertReport.datasets.filter((d) => d.id !== id)
-			}
+			},
+			dbData: { ...state.dbData, [id]: undefined }
 		}));
 
+	// Card Component
 	const showAddCardComponentModal = () =>
 		update((state) => ({
 			...state,
@@ -177,7 +188,13 @@ export const reportMaker = (() => {
 					x: 500,
 					y: 0,
 					width: 200,
-					height: 200
+					height: 200,
+					bgColor: 'bg-base-100',
+					textColor: 'text-base-content',
+					shadow: 'shadow-none',
+					rounded: 'rounded-2xl',
+					border: true,
+					outline: false
 				}
 			}
 		}));
@@ -190,19 +207,16 @@ export const reportMaker = (() => {
 		if (!upsertCardComponent) return;
 
 		let updatedCardComponents: UpsertCardComponent[];
-		if (upsertCardComponent?.id === '')
-			updatedCardComponents = cardComponents.map((ds) =>
-				ds.id === upsertCardComponent?.id ? upsertCardComponent : ds
-			);
-		else {
+		if (upsertCardComponent?.id === '') {
 			upsertCardComponent.id = nanoid();
 			upsertCardComponent.properties.id = nanoid();
 			updatedCardComponents = [...cardComponents, upsertCardComponent];
-		}
+		} else
+			updatedCardComponents = cardComponents.map((c) => (c.id === upsertCardComponent?.id ? upsertCardComponent : c));
 		update((state) => ({
 			...state,
 			upsertReport: { ...state.upsertReport, cardComponents: updatedCardComponents },
-			upsertDataset: undefined
+			upsertCardComponent: undefined
 		}));
 	};
 
@@ -215,6 +229,66 @@ export const reportMaker = (() => {
 			}
 		}));
 
+	// Table Component
+	const showAddTableComponentModal = () =>
+		update((state) => ({
+			...state,
+			showComponentList: false,
+			upsertTableComponent: {
+				id: '',
+				name: '',
+				title: '',
+				columns: '',
+				rows: '',
+				datasetId: undefined,
+				properties: {
+					id: '',
+					x: 500,
+					y: 0,
+					width: 200,
+					height: 200,
+					bgColor: 'bg-base-100',
+					textColor: 'text-base-content',
+					shadow: 'shadow-base',
+					rounded: 'rounded-2xl',
+					border: true,
+					outline: false
+				}
+			}
+		}));
+
+	const submitTableComponent = () => {
+		const {
+			upsertReport: { tableComponents },
+			upsertTableComponent
+		} = get(reportMaker);
+		if (!upsertTableComponent) return;
+
+		let updatedTableComponents: UpsertTableComponent[];
+		if (upsertTableComponent?.id === '') {
+			upsertTableComponent.id = nanoid();
+			upsertTableComponent.properties.id = nanoid();
+			updatedTableComponents = [...tableComponents, upsertTableComponent];
+		} else
+			updatedTableComponents = tableComponents.map((c) =>
+				c.id === upsertTableComponent?.id ? upsertTableComponent : c
+			);
+		update((state) => ({
+			...state,
+			upsertReport: { ...state.upsertReport, tableComponents: updatedTableComponents },
+			upsertTableComponent: undefined
+		}));
+	};
+
+	const deleteTableComponent = (id: string) =>
+		update((state) => ({
+			...state,
+			upsertReport: {
+				...state.upsertReport,
+				tableComponents: state.upsertReport.tableComponents.filter((ds) => ds.id !== id)
+			}
+		}));
+
 	return {
 		subscribe,
 		set,
@@ -224,10 +298,14 @@ export const reportMaker = (() => {
 		showAddDatasetModal,
 		watchQueryParams,
 		submitDataset,
+		fetchAllDatasets,
 		fetchDataset,
 		deleteDataset,
 		showAddCardComponentModal,
 		submitCardComponent,
-		deleteCardComponent
+		deleteCardComponent,
+		showAddTableComponentModal,
+		submitTableComponent,
+		deleteTableComponent
 	};
 })();

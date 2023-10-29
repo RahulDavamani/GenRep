@@ -3,9 +3,10 @@
 	import { reportMaker } from '../../../../stores/report-maker.store';
 	import { upsertCardComponentSchema, type UpsertCardComponent } from '$lib/reportSchema';
 	import { formatZodErrors, type TRPCZodError, type TRPCZodErrors } from '../../../../trpc/trpcErrorhandler';
+	import PropertiesForm from './PropertiesForm.svelte';
 
 	$: ({ upsertReport, dbData, upsertCardComponent } = $reportMaker);
-	$: data = $reportMaker.dbData[$reportMaker.upsertCardComponent?.id ?? ''];
+	$: data = $reportMaker.dbData[$reportMaker.upsertCardComponent?.datasetId ?? ''];
 
 	let zodErrors: TRPCZodErrors<UpsertCardComponent> | undefined;
 
@@ -16,7 +17,7 @@
 
 	const submit = () => {
 		const result = upsertCardComponentSchema.safeParse(upsertCardComponent);
-		if (result.success) reportMaker.submitDataset();
+		if (result.success) reportMaker.submitCardComponent();
 		zodErrors = result.success
 			? undefined
 			: formatZodErrors<UpsertCardComponent>(result.error.errors as TRPCZodError[]);
@@ -24,11 +25,11 @@
 </script>
 
 {#if $reportMaker.upsertCardComponent}
-	{@const { id, name, title, column, rowNumber, datasetId } = $reportMaker.upsertCardComponent}
+	{@const { id } = $reportMaker.upsertCardComponent}
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
-				<div class="text-xl font-semibold">
+				<div class="text-xl font-bold">
 					{#if id === ''}
 						Create Card Component
 					{:else}
@@ -59,13 +60,18 @@
 					<option value="" selected disabled>Select an option</option>
 					{#each Object.keys(dbData) as datasetId}
 						{@const datasetName = upsertReport.datasets.find((d) => d.id === datasetId)?.name}
-						<option value={datasetId}>{datasetName}</option>
+						{#if datasetName}
+							<option value={datasetId}>{datasetName}</option>
+						{/if}
 					{/each}
 				</select>
 			</div>
 
 			<div class="form-control mb-1">
-				<div class="label font-semibold">Title</div>
+				<div class="label font-semibold justify-start">
+					Title
+					<span class="ml-2 font-normal opacity-80">(optional)</span>
+				</div>
 				<input
 					type="text"
 					placeholder="Type here"
@@ -80,7 +86,7 @@
 			<div class="form-control mb-1">
 				<div class="label font-semibold">Column Name</div>
 				<select
-					class="select select-bordered {zodErrors?.column && 'select-error'}"
+					class="select select-bordered {(!data || zodErrors?.column) && 'select-error'}"
 					bind:value={$reportMaker.upsertCardComponent.column}
 				>
 					<option value="" selected disabled>Select an option</option>
@@ -110,6 +116,8 @@
 					<div class="label text-xs text-error">{zodErrors.rowNumber.message}</div>
 				{/if}
 			</div>
+
+			<PropertiesForm bind:properties={$reportMaker.upsertCardComponent.properties} />
 
 			<div class="modal-action mt-6">
 				<button class="btn btn-error w-24" on:click={closeModal}>Cancel</button>
