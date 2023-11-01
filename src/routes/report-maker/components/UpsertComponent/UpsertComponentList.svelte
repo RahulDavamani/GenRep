@@ -20,9 +20,12 @@
 				>
 					<Icon icon="mdi:card-text" /> Card
 				</button>
-				<div class="btn rounded-box text-xl justify-start normal-case">
+				<button
+					class="btn rounded-box text-xl justify-start normal-case"
+					on:click={reportMaker.showAddTableComponentModal}
+				>
 					<Icon icon="mdi:table" /> Table
-				</div>
+				</button>
 				<div class="btn rounded-box text-xl justify-start normal-case">
 					<Icon icon="mdi:chart-bar" /> Bar Graph
 				</div>

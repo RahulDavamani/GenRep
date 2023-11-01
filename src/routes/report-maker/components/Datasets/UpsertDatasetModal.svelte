@@ -30,7 +30,7 @@
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
-				<div class="text-lg font-semibold">
+				<div class="text-lg font-bold">
 					{#if id === ''}
 						Create New Dataset
 					{:else}
@@ -84,7 +84,7 @@
 
 			<div class="font-semibold ml-1 mt-1">Query Params:</div>
 
-			<div class="flex gap-6">
+			<div class="grid grid-cols-2 gap-x-6 gap-y-1">
 				{#each queryParams as { key }, i}
 					<div class="form-control flex-grow">
 						<div class="label">{key}</div>
@@ -95,6 +95,8 @@
 							bind:value={$reportMaker.upsertDataset.queryParams[i].value}
 						/>
 					</div>
+				{:else}
+					<div class="ml-1">No Params found in Query</div>
 				{/each}
 			</div>
 

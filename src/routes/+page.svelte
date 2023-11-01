@@ -17,8 +17,8 @@
 	</div>
 
 	<div class="flex flex-wrap justify-between gap-10">
-		{#each reports as { id, name, description, theme, _count: { datasets, cardComponents } }}
-			{@const totalComponents = cardComponents}
+		{#each reports as { id, name, description, theme, _count: { datasets, cardComponents, tableComponents } }}
+			{@const totalComponents = cardComponents + tableComponents}
 			<a href="/report-maker?id={id}">
 				<div class="border shadow rounded-box w-96 cursor-pointer flex flex-col h-full" data-theme={theme}>
 					<div class="p-4">

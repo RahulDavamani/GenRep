@@ -4,11 +4,13 @@
 	import Datasets from './components/Datasets/Datasets.svelte';
 	import { onMount } from 'svelte';
 	import { reportMaker } from '../../stores/report-maker.store.js';
-	import Components from './components/ReportComponents/Components.svelte';
-	import ReportCanvas from './components/ReportCanvas.svelte';
+	import Components from './components/UpsertComponent/Components.svelte';
+	import ReportCanvas from './components/Canvas/ReportCanvas.svelte';
 
 	export let data;
 	let { report, theme } = data;
+
+	let hideUI = false;
 
 	onMount(() => reportMaker.init(report, theme));
 </script>
@@ -37,10 +39,13 @@
 							</button>
 						</li>
 						<li>
-							<div class="text-base font-bold py-4">
+							<button class="text-base font-bold py-4" on:click={() => (hideUI = !hideUI)}>
 								<Icon icon="mdi:eye-off" width={22} />
 								Hide UI
-							</div>
+								{#if hideUI}
+									<Icon icon="mdi:check-bold" width={22} class="text-success" />
+								{/if}
+							</button>
 						</li>
 						<li>
 							<button
@@ -61,13 +66,16 @@
 				</div>
 			</div>
 		</div>
-		<div class="border shadow rounded-box">
-			<ReportForm />
-			<div class="divider m-0" />
-			<Datasets />
-			<div class="divider m-0" />
-			<Components />
-		</div>
+
+		{#if !hideUI}
+			<div class="border shadow rounded-box py-2">
+				<ReportForm />
+				<div class="divider m-0" />
+				<Datasets />
+				<div class="divider m-0" />
+				<Components />
+			</div>
+		{/if}
 
 		<ReportCanvas />
 	</div>

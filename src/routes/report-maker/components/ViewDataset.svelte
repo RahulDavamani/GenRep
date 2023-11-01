@@ -23,7 +23,7 @@
 			</div>
 			<div class="overflow-x-auto border shadow rounded-lg">
 				<table class="table table-xs">
-					<thead>
+					<thead class="bg-base-200">
 						<tr>
 							{#each Object.keys(data[0]) as key}
 								<th>{key}</th>

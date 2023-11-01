@@ -20,7 +20,8 @@ export const reportRouter = router({
 					where: { id, userId: session.user_id },
 					include: {
 						datasets: { include: { queryParams: true } },
-						cardComponents: { include: { properties: true } }
+						cardComponents: { include: { properties: true } },
+						tableComponents: { include: { properties: true } }
 					}
 				})
 				.catch(prismaErrorHandler);
@@ -30,7 +31,10 @@ export const reportRouter = router({
 	save: authProcedure
 		.input(upsertReportSchema)
 		.query(
-			async ({ ctx: { session }, input: { id, name, description, theme, canvasHeight, datasets, cardComponents } }) => {
+			async ({
+				ctx: { session },
+				input: { id, name, description, theme, canvasHeight, datasets, cardComponents, tableComponents }
+			}) => {
 				// Report
 				const report = await prisma.report.upsert({
 					where: { id },
@@ -99,7 +103,7 @@ export const reportRouter = router({
 					select: { id: true }
 				});
 				const deleteCardComponents = existingCardComponents
-					.filter((ecc) => !cardComponents.find((cc) => ecc.id === cc.id))
+					.filter((ec) => !cardComponents.find((c) => ec.id === c.id))
 					.map((d) => d.id);
 
 				await prisma.cardComponent.deleteMany({ where: { id: { in: deleteCardComponents } } });
@@ -110,12 +114,12 @@ export const reportRouter = router({
 					title,
 					column,
 					rowNumber,
-					properties: { id: propertiesId, x, y, width, height }
+					properties: { id: propertiesId, x, y, width, height, bgColor, textColor, shadow, rounded, border, outline }
 				} of cardComponents) {
 					const componentProperties = await prisma.componentProperties.upsert({
 						where: { id: propertiesId },
-						create: { x, y, width, height },
-						update: { x, y, width, height }
+						create: { x, y, width, height, bgColor, textColor, shadow, rounded, border, outline },
+						update: { x, y, width, height, bgColor, textColor, shadow, rounded, border, outline }
 					});
 
 					await prisma.cardComponent.upsert({
@@ -135,6 +139,52 @@ export const reportRouter = router({
 							title,
 							column,
 							rowNumber
+						}
+					});
+				}
+
+				// Table Components
+				const existingTableComponents = await prisma.tableComponent.findMany({
+					where: { reportId: report.id },
+					select: { id: true }
+				});
+				const deleteTableComponents = existingTableComponents
+					.filter((ec) => !tableComponents.find((c) => ec.id === c.id))
+					.map((d) => d.id);
+
+				await prisma.tableComponent.deleteMany({ where: { id: { in: deleteTableComponents } } });
+				for (const {
+					id,
+					datasetId,
+					name,
+					title,
+					columns,
+					rows,
+					properties: { id: propertiesId, x, y, width, height, bgColor, textColor, shadow, rounded, border, outline }
+				} of tableComponents) {
+					const componentProperties = await prisma.componentProperties.upsert({
+						where: { id: propertiesId },
+						create: { x, y, width, height, bgColor, textColor, shadow, rounded, border, outline },
+						update: { x, y, width, height, bgColor, textColor, shadow, rounded, border, outline }
+					});
+
+					await prisma.tableComponent.upsert({
+						where: { id },
+						create: {
+							reportId: report.id,
+							datasetId,
+							name,
+							title,
+							columns,
+							rows,
+							propertiesId: componentProperties.id
+						},
+						update: {
+							datasetId,
+							name,
+							title,
+							columns,
+							rows
 						}
 					});
 				}

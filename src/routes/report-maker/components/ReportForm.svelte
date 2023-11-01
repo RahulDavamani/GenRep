@@ -42,7 +42,10 @@
 		</div>
 
 		<div class="form-control w-full">
-			<div class="label font-semibold">Description (Optional)</div>
+			<div class="label font-semibold justify-start">
+				Description
+				<span class="ml-2 font-normal opacity-80">(optional)</span>
+			</div>
 			<textarea
 				placeholder="Type here"
 				class="textarea textarea-bordered w-full"
