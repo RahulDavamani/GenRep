@@ -22,7 +22,7 @@
 		if (!upsertTableComponent) return;
 		upsertTableComponent.columns = columns.join(',');
 		const result = upsertTableComponentSchema.safeParse(upsertTableComponent);
-		if (result.success) reportMaker.submitTableComponent();
+		if (result.success) reportMaker.submitComponent('table');
 		zodErrors = result.success
 			? undefined
 			: formatZodErrors<UpsertTableComponent>(result.error.errors as TRPCZodError[]);
@@ -34,13 +34,7 @@
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
-				<div class="text-xl font-bold">
-					{#if id === ''}
-						Create Table Component
-					{:else}
-						Update Table Component
-					{/if}
-				</div>
+				<div class="text-xl font-bold">Table Component</div>
 				<button on:click={closeModal}>
 					<Icon icon="mdi:close" class="cursor-pointer text-error" width={20} />
 				</button>
@@ -72,17 +66,17 @@
 
 			<div class="form-control mb-1">
 				<div class="label font-semibold justify-start">
-					Title
+					Label
 					<span class="ml-2 font-normal opacity-80">(optional)</span>
 				</div>
 				<input
 					type="text"
 					placeholder="Type here"
-					class="input input-bordered {zodErrors?.title && 'input-error'}"
-					bind:value={$reportMaker.upsertTableComponent.title}
+					class="input input-bordered {zodErrors?.label && 'input-error'}"
+					bind:value={$reportMaker.upsertTableComponent.label}
 				/>
-				{#if zodErrors?.title}
-					<div class="label text-xs text-error">{zodErrors.title.message}</div>
+				{#if zodErrors?.label}
+					<div class="label text-xs text-error">{zodErrors.label.message}</div>
 				{/if}
 			</div>
 
@@ -140,13 +134,7 @@
 
 			<div class="modal-action mt-6">
 				<button class="btn btn-error w-24" on:click={closeModal}>Cancel</button>
-				<button class="btn btn-success w-24" on:click={submit}>
-					{#if id === ''}
-						Create
-					{:else}
-						Update
-					{/if}
-				</button>
+				<button class="btn btn-success w-24" on:click={submit}>Submit</button>
 			</div>
 		</div>
 	</div>

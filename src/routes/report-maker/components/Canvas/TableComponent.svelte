@@ -5,7 +5,7 @@
 	import { componentInteract } from '$lib/client/interact';
 
 	export let tableComponent: UpsertTableComponent;
-	$: ({ id, datasetId, title, columns, rows, properties } = tableComponent);
+	$: ({ id, datasetId, label, columns, rows, properties } = tableComponent);
 	$: ({ x, y, width, height, bgColor, textColor, shadow, rounded, border, outline } = properties);
 	$: ({
 		upsertReport: { tableComponents },
@@ -56,7 +56,7 @@
    overflow-auto p-4 hover:outline hover:outline-1 hover:outline-blue-300 active:outline-blue-700"
 	bind:this={element}
 >
-	<div class="text-lg font-semibold mb-2">{title}</div>
+	<div class="text-lg font-semibold mb-2">{label}</div>
 	<div class="overflow-x-auto border">
 		{#if data}
 			<table class="table table-xs">

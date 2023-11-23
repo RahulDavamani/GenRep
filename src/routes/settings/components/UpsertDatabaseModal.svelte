@@ -6,7 +6,7 @@
 	import { ui } from '../../../stores/ui.store';
 	import { invalidateAll } from '$app/navigation';
 	import type { UpsertDatabase } from '../../../trpc/routers/database.router';
-	import { databaseProviders } from '../../../data/databaseProviders';
+	import { databaseProviders } from '$lib/data/databaseProviders';
 
 	export let upsertDatabase: UpsertDatabase | undefined;
 	let zodErrors: TRPCZodErrors<UpsertDatabase> | undefined;

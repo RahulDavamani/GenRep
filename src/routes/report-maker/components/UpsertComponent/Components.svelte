@@ -4,42 +4,30 @@
 	import ComponentList from './UpsertComponentList.svelte';
 	import UpsertCardComponent from './UpsertCardComponent.svelte';
 	import UpsertTableComponent from './UpsertTableComponent.svelte';
-	import { deepClone } from '$lib/client/deepClone';
+	import cloneDeep from 'lodash.clonedeep';
+	import UpsertInputComponent from './UpsertInputComponent.svelte';
+	import { componentTypesList, type GetValueFunc, type UpsertComponent } from '$lib/data/componentTypes';
 
-	$: ({
-		upsertReport: { datasets, cardComponents, tableComponents }
-	} = $reportMaker);
-	$: allComponents = [...cardComponents, ...tableComponents];
-
-	const getComponentValues = (id: string) => {
-		let i: number;
-		i = cardComponents.findIndex((c) => c.id === id);
-		if (i >= 0) {
-			const { id, name, datasetId, title, column, rowNumber, properties } = cardComponents[i];
-			return {
-				id,
-				datasetId,
-				name,
-				properties,
-				values: { Title: title, Column: column, ['Row Number']: rowNumber },
-				editFn: () => ($reportMaker.upsertCardComponent = deepClone(cardComponents[i])),
-				deleteFn: () => reportMaker.deleteCardComponent(id)
-			};
-		}
-		i = tableComponents.findIndex((c) => c.id === id);
-		if (i >= 0) {
-			const { id, name, datasetId, title, columns, rows, properties } = tableComponents[i];
-			return {
-				id,
-				datasetId,
-				name,
-				properties,
-				values: { Title: title, Columns: columns, ['Rows']: rows },
-				editFn: () => ($reportMaker.upsertTableComponent = deepClone(tableComponents[i])),
-				deleteFn: () => reportMaker.deleteTableComponent(id)
-			};
-		}
-	};
+	$: componentValues = componentTypesList.flatMap(({ labels: { key, componentsKey }, client: { getValues } }) =>
+		$reportMaker.upsertReport[componentsKey].flatMap((component) => ({
+			key,
+			values: (getValues as GetValueFunc<typeof key>)(component),
+			editFn: () => {
+				switch (key) {
+					case 'input':
+						$reportMaker.upsertInputComponent = cloneDeep(component as UpsertComponent<'input'>);
+						break;
+					case 'card':
+						$reportMaker.upsertCardComponent = cloneDeep(component as UpsertComponent<'card'>);
+						break;
+					case 'table':
+						$reportMaker.upsertTableComponent = cloneDeep(component as UpsertComponent<'table'>);
+						break;
+				}
+			},
+			deleteFn: () => reportMaker.deleteComponent(key, component.id)
+		}))
+	);
 </script>
 
 <div class="collapse collapse-arrow">
@@ -47,7 +35,7 @@
 	<div class="collapse-title">
 		<div class="flex items-center gap-2 text-lg font-semibold">
 			<Icon icon="mdi:view-dashboard-outline" />
-			Components: <span class="font-mono">({allComponents.length})</span>
+			Components: <span class="font-mono">({componentValues.length})</span>
 			<button class="z-10 text-success" on:click={() => ($reportMaker.showComponentList = true)}>
 				<Icon icon="mdi:add-circle" width={24} />
 			</button>
@@ -67,35 +55,31 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each allComponents as { id }}
-						{@const component = getComponentValues(id)}
-						{#if component}
-							{@const { id, datasetId, name, values, editFn, deleteFn } = component}
-							{@const datasetName = datasets.find((d) => d.id === datasetId)?.name}
-							<tr class="hover">
-								<td>
-									<button on:click={editFn}>
-										<Icon icon="mdi:square-edit-outline" width={22} class="text-info" />
-									</button>
-								</td>
-								<td class="font-semibold">{name}</td>
-								<td>Card</td>
-								<td>{datasetName}</td>
-								<td class="space-x-4">
-									{#each Object.entries(values) as [key, value]}
-										<span>
-											<span class="font-semibold">{key}:</span>
-											{value}
-										</span>
-									{/each}
-								</td>
-								<td class="w-1">
-									<button on:click={deleteFn}>
-										<Icon icon="mdi:delete-forever" width={22} class="text-error" />
-									</button>
-								</td>
-							</tr>
-						{/if}
+					{#each componentValues as { values: { key, name, datasetId, values }, editFn, deleteFn }}
+						{@const datasetName = $reportMaker.upsertReport.datasets.find((d) => d.id === datasetId)?.name}
+						<tr class="hover">
+							<td>
+								<button on:click={editFn}>
+									<Icon icon="mdi:square-edit-outline" width={22} class="text-info" />
+								</button>
+							</td>
+							<td class="font-semibold">{name}</td>
+							<td>{key[0].toUpperCase() + key.slice(1)}</td>
+							<td>{datasetName ?? 'N/A'}</td>
+							<td class="space-x-4">
+								{#each Object.entries(values) as [key, value]}
+									<span>
+										<span class="font-semibold">{key}:</span>
+										{value}
+									</span>
+								{/each}
+							</td>
+							<td class="w-1">
+								<button on:click={deleteFn}>
+									<Icon icon="mdi:delete-forever" width={22} class="text-error" />
+								</button>
+							</td>
+						</tr>
 					{/each}
 				</tbody>
 			</table>
@@ -104,5 +88,7 @@
 </div>
 
 <ComponentList />
+
+<UpsertInputComponent />
 <UpsertCardComponent />
 <UpsertTableComponent />

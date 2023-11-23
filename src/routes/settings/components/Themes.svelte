@@ -5,7 +5,7 @@
 	import { trpc } from '../../../trpc/client';
 	import { trpcClientErrorHandler } from '../../../trpc/trpcErrorhandler';
 	import { invalidateAll } from '$app/navigation';
-	import { themes } from '../../../data/themes';
+	import { themes } from '$lib/data/themes';
 
 	$: data = $page.data as PageData;
 

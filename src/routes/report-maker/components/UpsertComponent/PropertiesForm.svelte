@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { componentProperties } from '$lib/data/componentProperties';
 	import type { UpsertProperties } from '$lib/reportSchema';
-	import { componentProperties } from '../../../../data/componentProperties';
 	import { reportMaker } from '../../../../stores/report-maker.store';
 
 	$: ({ upsertReport } = $reportMaker);

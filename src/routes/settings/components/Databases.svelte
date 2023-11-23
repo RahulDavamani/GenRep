@@ -8,7 +8,7 @@
 	import { trpcClientErrorHandler, trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
 	import { invalidateAll } from '$app/navigation';
 	import type { UpsertDatabase } from '../../../trpc/routers/database.router';
-	import { databaseProviders } from '../../../data/databaseProviders';
+	import { databaseProviders } from '$lib/data/databaseProviders';
 
 	let upsertDatabase: UpsertDatabase | undefined;
 	$: ({ databases } = $page.data as PageData);

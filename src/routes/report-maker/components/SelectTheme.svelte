@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import { themes } from '../../../data/themes';
 	import { reportMaker } from '../../../stores/report-maker.store';
+	import { themes } from '$lib/data/themes';
 </script>
 
 {#if $reportMaker.showSelectTheme}

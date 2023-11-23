@@ -3,10 +3,10 @@
 	import UpsertDatasetModal from './UpsertDatasetModal.svelte';
 	import { page } from '$app/stores';
 	import type { PageData } from '../../$types';
-	import { databaseProviders } from '../../../../data/databaseProviders';
 	import { reportMaker } from '../../../../stores/report-maker.store';
 	import { replaceQueryParams } from '$lib/client/queryParams';
 	import ViewDataset from '../ViewDataset.svelte';
+	import { databaseProviders } from '$lib/data/databaseProviders';
 
 	$: ({ databases } = $page.data as PageData);
 	$: ({ datasets } = $reportMaker.upsertReport);

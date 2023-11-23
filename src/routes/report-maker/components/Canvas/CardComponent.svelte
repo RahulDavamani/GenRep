@@ -5,7 +5,7 @@
 	import { componentInteract } from '$lib/client/interact';
 
 	export let cardComponent: UpsertCardComponent;
-	$: ({ id, datasetId, title, column, rowNumber, properties } = cardComponent);
+	$: ({ id, datasetId, label, column, rowNumber, properties } = cardComponent);
 	$: ({ x, y, width, height, bgColor, textColor, shadow, rounded, border, outline } = properties);
 	$: ({
 		upsertReport: { cardComponents },
@@ -38,6 +38,6 @@
    overflow-auto p-4 hover:outline hover:outline-1 hover:outline-blue-300 active:outline-blue-700"
 	bind:this={element}
 >
-	<div class="text-lg font-semibold">{title}</div>
+	<div class="text-lg font-semibold">{label}</div>
 	<div>{data}</div>
 </div>

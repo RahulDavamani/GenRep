@@ -4,9 +4,10 @@
 	import CardComponent from './CardComponent.svelte';
 	import { canvasInteract } from '$lib/client/interact';
 	import TableComponent from './TableComponent.svelte';
+	import InputComponent from './InputComponent.svelte';
 
 	$: ({
-		upsertReport: { theme, canvasHeight, cardComponents, tableComponents }
+		upsertReport: { theme, canvasHeight, inputComponents, cardComponents, tableComponents }
 	} = $reportMaker);
 
 	onMount(() => canvasInteract());
@@ -21,6 +22,9 @@
 	data-theme={theme}
 	bind:this={canvasElement}
 >
+	{#each inputComponents as inputComponent}
+		<InputComponent {inputComponent} />
+	{/each}
 	{#each cardComponents as cardComponent}
 		<CardComponent {cardComponent} />
 	{/each}

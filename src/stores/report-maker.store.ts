@@ -1,4 +1,10 @@
-import type { UpsertCardComponent, UpsertDataset, UpsertReport, UpsertTableComponent } from '$lib/reportSchema';
+import type {
+	UpsertCardComponent,
+	UpsertDataset,
+	UpsertInputComponent,
+	UpsertReport,
+	UpsertTableComponent
+} from '$lib/reportSchema';
 import { get, writable } from 'svelte/store';
 import { trpcClientErrorHandler, type TRPCZodErrors } from '../trpc/trpcErrorhandler';
 import { trpc } from '../trpc/client';
@@ -7,6 +13,8 @@ import { invalidateAll } from '$app/navigation';
 import { page } from '$app/stores';
 import { getQueryParams, replaceQueryParams } from '$lib/client/queryParams';
 import { nanoid } from 'nanoid';
+import cloneDeep from 'lodash.clonedeep';
+import { componentTypes, type ComponentKey } from '../lib/data/componentTypes';
 
 export interface DBData {
 	[key: string]: { [key: string]: unknown }[] | undefined;
@@ -23,49 +31,38 @@ export interface ReportMaker {
 	dbData: DBData;
 
 	showComponentList: boolean;
+	upsertInputComponent?: UpsertInputComponent;
 	upsertCardComponent?: UpsertCardComponent;
 	upsertTableComponent?: UpsertTableComponent;
 }
 
 export const reportMaker = (() => {
+	const newReport = {
+		id: nanoid(),
+		name: '',
+		description: '',
+		theme: '',
+		canvasHeight: 500,
+		datasets: [],
+		inputComponents: [],
+		cardComponents: [],
+		tableComponents: []
+	};
+
 	// State
 	const { subscribe, set, update } = writable<ReportMaker>({
 		init: false,
-		upsertReport: {
-			id: '',
-			name: '',
-			description: '',
-			theme: '',
-			canvasHeight: 0,
-			datasets: [],
-			cardComponents: [],
-			tableComponents: []
-		},
-		zodErrors: undefined,
+		upsertReport: cloneDeep(newReport),
 		showSelectTheme: false,
-
-		upsertDataset: undefined,
-		viewDatasetId: undefined,
 		dbData: {},
-
-		showComponentList: false,
-		upsertCardComponent: undefined
+		showComponentList: false
 	});
 
 	const init = async (report: UpsertReport | undefined, theme: string) => {
 		update((state) => ({
 			...state,
 			init: true,
-			upsertReport: report ?? {
-				id: '',
-				name: '',
-				description: '',
-				theme,
-				canvasHeight: 500,
-				datasets: [],
-				cardComponents: [],
-				tableComponents: []
-			},
+			upsertReport: report ?? { ...newReport, theme },
 			zodErrors: undefined
 		}));
 		await fetchAllDatasets();
@@ -95,7 +92,7 @@ export const reportMaker = (() => {
 		update((state) => ({
 			...state,
 			upsertDataset: {
-				id: '',
+				id: nanoid(),
 				databaseId: undefined,
 				name: '',
 				query: '',
@@ -107,7 +104,7 @@ export const reportMaker = (() => {
 		const { upsertDataset } = get(reportMaker);
 		if (!upsertDataset) return;
 		const queryParams = getQueryParams(query).map((key) => {
-			const queryParam = upsertDataset?.queryParams.find((qp) => qp.key === key);
+			const queryParam = upsertDataset.queryParams.find((qp) => qp.key === key);
 			return (
 				queryParam ?? {
 					id: nanoid(),
@@ -126,14 +123,12 @@ export const reportMaker = (() => {
 		} = get(reportMaker);
 		if (!upsertDataset) return;
 
-		let updatedDatasets: UpsertDataset[];
-		if (upsertDataset?.id === '') {
-			upsertDataset.id = nanoid();
-			updatedDatasets = [...datasets, upsertDataset];
-		} else updatedDatasets = datasets.map((ds) => (ds.id === upsertDataset?.id ? upsertDataset : ds));
+		const i = datasets.findIndex((c) => c.id === upsertDataset.id);
+		if (i < 0) datasets.push(upsertDataset);
+		else datasets[i] = upsertDataset;
 		update((state) => ({
 			...state,
-			upsertReport: { ...state.upsertReport, datasets: updatedDatasets },
+			upsertReport: { ...state.upsertReport, datasets },
 			upsertDataset: undefined
 		}));
 	};
@@ -156,7 +151,9 @@ export const reportMaker = (() => {
 		const resultQuery = replaceQueryParams(query, queryParams);
 		const { data } = await trpc($page)
 			.database.queryData.query({ id: databaseId, query: resultQuery })
-			.catch(trpcClientErrorHandler);
+			.catch((e) =>
+				trpcClientErrorHandler(e, () => update((state) => ({ ...state, dbData: { ...state.dbData, [id]: undefined } })))
+			);
 
 		update((state) => ({ ...state, dbData: { ...state.dbData, [id]: data } }));
 		ui.setLoader();
@@ -172,121 +169,39 @@ export const reportMaker = (() => {
 			dbData: { ...state.dbData, [id]: undefined }
 		}));
 
-	// Card Component
-	const showAddCardComponentModal = () =>
+	const showAddComponentModal = (type: ComponentKey) =>
 		update((state) => ({
 			...state,
 			showComponentList: false,
-			upsertCardComponent: {
-				id: '',
-				name: '',
-				title: '',
-				column: '',
-				rowNumber: 1,
-				datasetId: undefined,
-				properties: {
-					id: '',
-					x: 500,
-					y: 0,
-					width: 200,
-					height: 200,
-					bgColor: 'bg-base-100',
-					textColor: 'text-base-content',
-					shadow: 'shadow-none',
-					rounded: 'rounded-2xl',
-					border: true,
-					outline: false
-				}
-			}
+			[componentTypes[type].labels.upsertComponentKey]: componentTypes[type].client.newComponent
 		}));
 
-	const submitCardComponent = () => {
-		const {
-			upsertReport: { cardComponents },
-			upsertCardComponent
-		} = get(reportMaker);
-		if (!upsertCardComponent) return;
+	const submitComponent = (type: ComponentKey) =>
+		update((state) => {
+			const {
+				labels: { componentsKey, upsertComponentKey }
+			} = componentTypes[type];
+			const components = state.upsertReport[componentsKey];
+			const upsertComponent = state[upsertComponentKey];
+			if (!upsertComponent) return state;
 
-		let updatedCardComponents: UpsertCardComponent[];
-		if (upsertCardComponent?.id === '') {
-			upsertCardComponent.id = nanoid();
-			upsertCardComponent.properties.id = nanoid();
-			updatedCardComponents = [...cardComponents, upsertCardComponent];
-		} else
-			updatedCardComponents = cardComponents.map((c) => (c.id === upsertCardComponent?.id ? upsertCardComponent : c));
-		update((state) => ({
-			...state,
-			upsertReport: { ...state.upsertReport, cardComponents: updatedCardComponents },
-			upsertCardComponent: undefined
-		}));
-	};
+			const i = components.findIndex((c) => c.id === upsertComponent?.id);
+			if (i < 0) components[components.length] = upsertComponent;
+			else components[i] = upsertComponent;
 
-	const deleteCardComponent = (id: string) =>
+			return {
+				...state,
+				upsertReport: { ...state.upsertReport, [componentsKey]: components },
+				[upsertComponentKey]: undefined
+			};
+		});
+
+	const deleteComponent = (type: ComponentKey, id: string) =>
 		update((state) => ({
 			...state,
 			upsertReport: {
 				...state.upsertReport,
-				cardComponents: state.upsertReport.cardComponents.filter((ds) => ds.id !== id)
-			}
-		}));
-
-	// Table Component
-	const showAddTableComponentModal = () =>
-		update((state) => ({
-			...state,
-			showComponentList: false,
-			upsertTableComponent: {
-				id: '',
-				name: '',
-				title: '',
-				columns: '',
-				rows: '',
-				datasetId: undefined,
-				properties: {
-					id: '',
-					x: 500,
-					y: 0,
-					width: 200,
-					height: 200,
-					bgColor: 'bg-base-100',
-					textColor: 'text-base-content',
-					shadow: 'shadow-none',
-					rounded: 'rounded-2xl',
-					border: true,
-					outline: false
-				}
-			}
-		}));
-
-	const submitTableComponent = () => {
-		const {
-			upsertReport: { tableComponents },
-			upsertTableComponent
-		} = get(reportMaker);
-		if (!upsertTableComponent) return;
-
-		let updatedTableComponents: UpsertTableComponent[];
-		if (upsertTableComponent?.id === '') {
-			upsertTableComponent.id = nanoid();
-			upsertTableComponent.properties.id = nanoid();
-			updatedTableComponents = [...tableComponents, upsertTableComponent];
-		} else
-			updatedTableComponents = tableComponents.map((c) =>
-				c.id === upsertTableComponent?.id ? upsertTableComponent : c
-			);
-		update((state) => ({
-			...state,
-			upsertReport: { ...state.upsertReport, tableComponents: updatedTableComponents },
-			upsertTableComponent: undefined
-		}));
-	};
-
-	const deleteTableComponent = (id: string) =>
-		update((state) => ({
-			...state,
-			upsertReport: {
-				...state.upsertReport,
-				tableComponents: state.upsertReport.tableComponents.filter((ds) => ds.id !== id)
+				[`${type}Components`]: state.upsertReport[`${type}Components`].filter((c) => c.id !== id)
 			}
 		}));
 
@@ -302,11 +217,8 @@ export const reportMaker = (() => {
 		fetchAllDatasets,
 		fetchDataset,
 		deleteDataset,
-		showAddCardComponentModal,
-		submitCardComponent,
-		deleteCardComponent,
-		showAddTableComponentModal,
-		submitTableComponent,
-		deleteTableComponent
+		showAddComponentModal,
+		deleteComponent,
+		submitComponent
 	};
 })();

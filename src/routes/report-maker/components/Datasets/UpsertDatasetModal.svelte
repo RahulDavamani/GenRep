@@ -3,10 +3,10 @@
 	import { formatZodErrors, type TRPCZodError, type TRPCZodErrors } from '../../../../trpc/trpcErrorhandler';
 	import { page } from '$app/stores';
 	import type { PageData } from '../../$types';
-	import { databaseProviders } from '../../../../data/databaseProviders';
 	import { reportMaker } from '../../../../stores/report-maker.store';
 	import { upsertDatasetSchema, type UpsertDataset } from '$lib/reportSchema';
 	import { replaceQueryParams } from '$lib/client/queryParams';
+	import { databaseProviders } from '$lib/data/databaseProviders';
 
 	$: ({ databases } = $page.data as PageData);
 	$: ({ upsertDataset } = $reportMaker);
@@ -26,17 +26,11 @@
 </script>
 
 {#if upsertDataset && $reportMaker.upsertDataset}
-	{@const { id, query, queryParams } = upsertDataset}
+	{@const { query, queryParams } = upsertDataset}
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">
-				<div class="text-lg font-bold">
-					{#if id === ''}
-						Create New Dataset
-					{:else}
-						Update Dataset
-					{/if}
-				</div>
+				<div class="text-lg font-bold">Dataset</div>
 				<button on:click={closeModal}>
 					<Icon icon="mdi:close" class="cursor-pointer text-error" width={20} />
 				</button>
@@ -107,13 +101,7 @@
 
 			<div class="modal-action mt-6">
 				<button class="btn btn-error w-24" on:click={closeModal}>Cancel</button>
-				<button class="btn btn-success w-24" on:click={submit}>
-					{#if id === ''}
-						Create
-					{:else}
-						Update
-					{/if}
-				</button>
+				<button class="btn btn-success w-24" on:click={submit}>Save</button>
 			</div>
 		</div>
 	</div>

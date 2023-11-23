@@ -47,6 +47,8 @@ model Key {
 
 model Database {
    id               String            @id @unique @default(nanoid())
+   createdAt        DateTime          @default(now())
+   updatedAt        DateTime          @updatedAt
    name             String
    provider         String
    connectionType   String
@@ -61,21 +63,25 @@ model Database {
 }
 
 model ConnectionOption {
-   id           String @id @unique @default(nanoid())
+   id           String   @id @unique @default(nanoid())
+   createdAt    DateTime @default(now())
+   updatedAt    DateTime @updatedAt
    host         String
    port         Int
    databaseName String
    username     String
    password     String
-   databaseId   String @unique
+   databaseId   String   @unique
 
    database Database @relation(fields: [databaseId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model APIKey {
-   id     String @id @unique @default(nanoid())
-   name   String
-   userId String
+   id        String   @id @unique @default(nanoid())
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+   name      String
+   userId    String
 
    user User @relation(fields: [userId], references: [id])
 
@@ -83,7 +89,9 @@ model APIKey {
 }
 
 model Report {
-   id           String @id @unique @default(nanoid())
+   id           String   @id @unique @default(nanoid())
+   createdAt    DateTime @default(now())
+   updatedAt    DateTime @updatedAt
    name         String
    description  String
    theme        String
@@ -94,12 +102,15 @@ model Report {
    datasets        Dataset[]
    cardComponents  CardComponent[]
    tableComponents TableComponent[]
+   inputComponents InputComponent[]
 
    @@unique([userId, name])
 }
 
 model Dataset {
-   id         String  @id @unique @default(nanoid())
+   id         String   @id @unique @default(nanoid())
+   createdAt  DateTime @default(now())
+   updatedAt  DateTime @updatedAt
    name       String
    query      String
    databaseId String?
@@ -115,20 +126,45 @@ model Dataset {
 }
 
 model QueryParam {
-   id        String @id @unique @default(nanoid())
+   id        String   @id @unique @default(nanoid())
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
    key       String
    value     String
    datasetId String
 
-   dataset Dataset @relation(fields: [datasetId], references: [id])
+   dataset         Dataset          @relation(fields: [datasetId], references: [id])
+   inputComponents InputComponent[]
+}
+
+model InputComponent {
+   id        String   @id @unique @default(nanoid())
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+   name      String
+
+   label String
+   type  String
+
+   reportId     String
+   queryParamId String?
+   propertiesId String  @unique
+
+   report     Report              @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+   queryParam QueryParam?         @relation(fields: [queryParamId], references: [id])
+   properties ComponentProperties @relation(fields: [propertiesId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model CardComponent {
-   id           String  @id @unique @default(nanoid())
-   name         String
-   title        String
-   column       String
-   rowNumber    Int
+   id        String   @id @unique @default(nanoid())
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+   name      String
+
+   label     String
+   column    String
+   rowNumber Int
+
    reportId     String
    datasetId    String?
    propertiesId String  @unique
@@ -141,11 +177,15 @@ model CardComponent {
 }
 
 model TableComponent {
-   id           String  @id @unique @default(nanoid())
-   name         String
-   title        String
-   columns      String
-   rows         String
+   id        String   @id @unique @default(nanoid())
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+   name      String
+
+   label   String
+   columns String
+   rows    String
+
    reportId     String
    datasetId    String?
    propertiesId String  @unique
@@ -158,17 +198,20 @@ model TableComponent {
 }
 
 model ComponentProperties {
-   id              String          @id @unique @default(nanoid())
-   x               Int
-   y               Int
-   width           Int
-   height          Int
-   bgColor         String
-   textColor       String
-   shadow          String
-   rounded         String
-   border          Boolean
-   outline         Boolean
-   cardComponent   CardComponent?
-   tableComponents TableComponent?
+   id             String          @id @unique @default(nanoid())
+   createdAt      DateTime        @default(now())
+   updatedAt      DateTime        @updatedAt
+   x              Int
+   y              Int
+   width          Int
+   height         Int
+   bgColor        String
+   textColor      String
+   shadow         String
+   rounded        String
+   border         Boolean
+   outline        Boolean
+   cardComponent  CardComponent?
+   tableComponent TableComponent?
+   inputComponent InputComponent?
 }

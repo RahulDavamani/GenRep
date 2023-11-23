@@ -1,6 +1,6 @@
 import { TRPCClientError } from '@trpc/client';
 import { TRPCError } from '@trpc/server';
-import { getErrorCode } from '../data/errorCodes';
+import { getErrorCode } from '../lib/data/errorCodes';
 import { error } from '@sveltejs/kit';
 import { ui } from '../stores/ui.store';
 

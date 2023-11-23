@@ -16,13 +16,19 @@
 			<div class="flex flex-col gap-4">
 				<button
 					class="btn rounded-box text-xl justify-start normal-case"
-					on:click={reportMaker.showAddCardComponentModal}
+					on:click={() => reportMaker.showAddComponentModal('input')}
+				>
+					<Icon icon="mdi:card-text" /> Input
+				</button>
+				<button
+					class="btn rounded-box text-xl justify-start normal-case"
+					on:click={() => reportMaker.showAddComponentModal('card')}
 				>
 					<Icon icon="mdi:card-text" /> Card
 				</button>
 				<button
 					class="btn rounded-box text-xl justify-start normal-case"
-					on:click={reportMaker.showAddTableComponentModal}
+					on:click={() => reportMaker.showAddComponentModal('table')}
 				>
 					<Icon icon="mdi:table" /> Table
 				</button>
