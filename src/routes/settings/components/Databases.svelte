@@ -5,7 +5,7 @@
 	import { ui } from '../../../stores/ui.store';
 	import UpsertDatabaseModal from './UpsertDatabaseModal.svelte';
 	import { trpc } from '../../../trpc/client';
-	import { trpcClientErrorHandler, trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler } from '../../../trpc/trpcErrorhandler';
 	import { invalidateAll } from '$app/navigation';
 	import type { UpsertDatabase } from '../../../trpc/routers/database.router';
 	import { databaseProviders } from '$lib/data/databaseProviders';
@@ -97,7 +97,7 @@
 		</thead>
 		<tbody>
 			{#each databases as db}
-				{@const { id, name, provider, connectionType, connectionString, connectionOption } = db}
+				{@const { id, name, provider, connectionType } = db}
 				{@const providerName = databaseProviders.find((dbp) => dbp.client === provider)?.name}
 				<tr class="hover">
 					<td class="w-1">

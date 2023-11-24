@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import { reportMaker } from '../../../../stores/report-maker.store';
 
+	export let view = false;
 	export let inputComponent: UpsertInputComponent;
 
 	$: ({ id, queryParamId, label, type, properties } = inputComponent);
@@ -25,14 +26,17 @@
 		)
 	);
 
+	let innerWidth = 0;
 	let element: HTMLDivElement | undefined;
 	$: if (element)
 		Object.assign(element.style, {
-			width: `${width}px`,
-			height: `${height}px`,
-			transform: `translate(${x}px, ${y}px)`
+			width: `${view ? (width / 1000) * innerWidth : width}px`,
+			height: `${view ? (height / 1000) * innerWidth : height}px`,
+			transform: `translate(${view ? (x / 1000) * innerWidth : x}px, ${y}px)`
 		});
 </script>
+
+<svelte:window bind:innerWidth />
 
 <div
 	{id}

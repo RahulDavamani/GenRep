@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { ui } from '../../../stores/ui.store';
-	import { trpcClientErrorHandler, trpcErrorhandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
 	import { trpc } from '../../../trpc/client';
 	import { page } from '$app/stores';
 	import { invalidateAll } from '$app/navigation';

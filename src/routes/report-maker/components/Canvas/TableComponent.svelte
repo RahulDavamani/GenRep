@@ -4,6 +4,7 @@
 	import { reportMaker } from '../../../../stores/report-maker.store';
 	import { componentInteract } from '$lib/client/interact';
 
+	export let view = false;
 	export let tableComponent: UpsertTableComponent;
 	$: ({ id, datasetId, label, columns, rows, properties } = tableComponent);
 	$: ({ x, y, width, height, bgColor, textColor, shadow, rounded, border, outline } = properties);
@@ -40,14 +41,17 @@
 		)
 	);
 
+	let innerWidth = 0;
 	let element: HTMLDivElement | undefined;
 	$: if (element)
 		Object.assign(element.style, {
-			width: `${width}px`,
-			height: `${height}px`,
-			transform: `translate(${x}px, ${y}px)`
+			width: `${view ? (width / 1000) * innerWidth : width}px`,
+			height: `${view ? (height / 1000) * innerWidth : height}px`,
+			transform: `translate(${view ? (x / 1000) * innerWidth : x}px, ${y}px)`
 		});
 </script>
+
+<svelte:window bind:innerWidth />
 
 <div
 	{id}

@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { authProcedure, router } from '../trpc';
+import { authProcedure, procedure, router } from '../trpc';
 import prismaErrorHandler from '../../prisma/prismaErrorHandler';
 import { upsertReportSchema, type UpsertProperties } from '$lib/reportSchema';
-import { componentTypesList } from '../../lib/data/componentTypes';
+import { componentTypesList, type ComponentType, type ComponentKey } from '../../lib/data/componentTypes';
 
 interface Component {
 	id: string;
@@ -11,12 +11,12 @@ interface Component {
 }
 
 type ComponentIncludes = {
-	[K in 'inputComponents' | 'cardComponents' | 'tableComponents']: {
-		include: {
-			properties: boolean;
-		};
-	};
+	[K in ComponentType<ComponentKey>['labels']['componentsKey']]: { include: { properties: boolean } };
 };
+
+const componentIncludes = Object.fromEntries(
+	componentTypesList.map((ct) => [ct.labels.componentsKey, { include: { properties: true } }])
+) as ComponentIncludes;
 
 const deleteComponents = async (
 	reportId: string,
@@ -77,10 +77,7 @@ export const reportRouter = router({
 	getById: authProcedure
 		.input(z.object({ id: z.string().min(1) }))
 		.query(async ({ ctx: { session }, input: { id } }) => {
-			const componentIncludes = Object.fromEntries(
-				componentTypesList.map((ct) => [ct.labels.componentsKey, { include: { properties: true } }])
-			) as ComponentIncludes;
-
+			const apiKey = (await prisma.aPIKey.findFirst({ select: { id: true } }))?.id;
 			const report = await prisma.report
 				.findUniqueOrThrow({
 					where: { id, userId: session.user_id },
@@ -90,7 +87,7 @@ export const reportRouter = router({
 					}
 				})
 				.catch(prismaErrorHandler);
-			return { report };
+			return { apiKey, report };
 		}),
 
 	save: authProcedure.input(upsertReportSchema).query(
@@ -166,5 +163,21 @@ export const reportRouter = router({
 
 			return { reportId };
 		}
-	)
+	),
+
+	getReportView: procedure
+		.input(z.object({ id: z.string().min(1), apiKey: z.string().min(1) }))
+		.query(async ({ input: { id, apiKey } }) => {
+			await prisma.aPIKey.findUniqueOrThrow({ where: { id: apiKey } }).catch(prismaErrorHandler);
+			const report = await prisma.report
+				.findUniqueOrThrow({
+					where: { id },
+					include: {
+						datasets: { include: { queryParams: true } },
+						...componentIncludes
+					}
+				})
+				.catch(prismaErrorHandler);
+			return { report };
+		})
 });

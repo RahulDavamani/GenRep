@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { authProcedure, router } from '../trpc';
+import { authProcedure, procedure, router } from '../trpc';
 import prismaErrorHandler from '../../prisma/prismaErrorHandler';
 import { testDBConnection } from '$lib/server/knex/testDBConnection';
 import { queryDB } from '$lib/server/knex/queryDb';
@@ -106,7 +106,7 @@ export const databaseRouter = router({
 			return await testDBConnection(provider, connectionString, connectionOption);
 		}),
 
-	queryData: authProcedure
+	queryData: procedure
 		.input(
 			z.object({
 				id: z.string().min(1),

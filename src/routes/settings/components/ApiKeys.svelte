@@ -7,7 +7,7 @@
 	import { copyToClipboard } from '$lib/client/copyToClipboard';
 	import { invalidateAll } from '$app/navigation';
 	import { trpc } from '../../../trpc/client';
-	import { trpcClientErrorHandler, trpcErrorhandler } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler } from '../../../trpc/trpcErrorhandler';
 	import type { UpsertApiKey } from '../../../trpc/routers/apiKey.router';
 
 	let upsertApiKey: UpsertApiKey | undefined;

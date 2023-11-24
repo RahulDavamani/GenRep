@@ -8,7 +8,8 @@
 	import ReportCanvas from './components/Canvas/ReportCanvas.svelte';
 
 	export let data;
-	let { report, theme } = data;
+	let { apiKey, report, theme } = data;
+	$: console.log(apiKey);
 
 	let hideUI = false;
 
@@ -33,10 +34,10 @@
 					</div>
 					<ul tabIndex={0} class="dropdown-content z-[50] menu gap-y-1 shadow bg-base-200 rounded-box w-60 p-3">
 						<li>
-							<button class="text-base font-bold py-4">
+							<a href="/view-report?id={report?.id}&apiKey={apiKey}" target="_blank" class="text-base font-bold py-4">
 								<Icon icon="mdi:open-in-new" width={22} />
 								View Report
-							</button>
+							</a>
 						</li>
 						<li>
 							<button class="text-base font-bold py-4" on:click={() => (hideUI = !hideUI)}>

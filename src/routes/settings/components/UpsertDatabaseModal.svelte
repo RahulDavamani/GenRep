@@ -2,7 +2,7 @@
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 	import { trpc } from '../../../trpc/client';
-	import { trpcClientErrorHandler, trpcErrorhandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
+	import { trpcClientErrorHandler, type TRPCZodErrors } from '../../../trpc/trpcErrorhandler';
 	import { ui } from '../../../stores/ui.store';
 	import { invalidateAll } from '$app/navigation';
 	import type { UpsertDatabase } from '../../../trpc/routers/database.router';

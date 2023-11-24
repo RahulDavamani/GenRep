@@ -3,6 +3,7 @@
 GenRep is your go-to tool for creating reports and charts quickly. It's designed for simplicity, making data visualization a breeze.
 
 **Features:**
+
 - Easy data import
 - Variety of chart types
 - Quick customization
@@ -11,6 +12,7 @@ GenRep is your go-to tool for creating reports and charts quickly. It's designed
 - Real-time collaboration
 
 **Getting Started:**
+
 1. Sign up or log in.
 2. Import your data.
 3. Create reports and charts.
@@ -23,4 +25,4 @@ GenRep is your go-to tool for creating reports and charts quickly. It's designed
 
 Enjoy using GenRep for all your reporting needs!
 
-*Note: Replace placeholders with actual information in your own README.md.*
+_Note: Replace placeholders with actual information in your own README.md._

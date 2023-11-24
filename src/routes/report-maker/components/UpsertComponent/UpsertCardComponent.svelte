@@ -25,7 +25,6 @@
 </script>
 
 {#if $reportMaker.upsertCardComponent}
-	{@const { id } = $reportMaker.upsertCardComponent}
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">

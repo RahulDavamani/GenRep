@@ -30,7 +30,6 @@
 </script>
 
 {#if $reportMaker.upsertTableComponent}
-	{@const { id } = $reportMaker.upsertTableComponent}
 	<div class="modal modal-open">
 		<div class="modal-box max-w-xl">
 			<div class="flex justify-between items-center mb-4">

@@ -6,13 +6,16 @@
 	import { ui } from '../stores/ui.store';
 	import Loader from './components/Loader.svelte';
 	import { onMount } from 'svelte';
+	import { appUrls } from '$lib/data/appUrls';
+	import { page } from '$app/stores';
 
 	export let data;
 	onMount(() => ui.setTheme(data.theme));
 	$: ({ loader } = $ui);
+	$: path = $page.url.pathname;
 </script>
 
-{#if data.session}
+{#if appUrls.sessionRestricted.includes(path) || !appUrls.public.includes(path)}
 	<Navbar />
 {/if}
 
@@ -22,9 +25,13 @@
 {/if}
 
 {#if !loader || loader.overlay !== false}
-	<div class="py-6">
+	{#if appUrls.sessionRestricted.includes(path) || !appUrls.public.includes(path)}
+		<div class="py-6">
+			<slot />
+		</div>
+	{:else}
 		<slot />
-	</div>
+	{/if}
 {/if}
 
 <Modal />
