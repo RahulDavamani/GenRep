@@ -8,25 +8,27 @@
 	import UpsertInputComponent from './UpsertInputComponent.svelte';
 	import { componentTypesList, type GetValueFunc, type UpsertComponent } from '$lib/data/componentTypes';
 
-	$: componentValues = componentTypesList.flatMap(({ labels: { key, componentsKey }, client: { getValues } }) =>
-		$reportMaker.upsertReport[componentsKey].flatMap((component) => ({
-			key,
-			values: (getValues as GetValueFunc<typeof key>)(component),
-			editFn: () => {
-				switch (key) {
-					case 'input':
-						$reportMaker.upsertInputComponent = cloneDeep(component as UpsertComponent<'input'>);
-						break;
-					case 'card':
-						$reportMaker.upsertCardComponent = cloneDeep(component as UpsertComponent<'card'>);
-						break;
-					case 'table':
-						$reportMaker.upsertTableComponent = cloneDeep(component as UpsertComponent<'table'>);
-						break;
-				}
-			},
-			deleteFn: () => reportMaker.deleteComponent(key, component.id)
-		}))
+	$: componentValues = componentTypesList.flatMap(
+		({ labels: { key, keyComponents, upsertKeyComponent }, client: { getValues } }) =>
+			$reportMaker.upsertReport[keyComponents].flatMap((component) => ({
+				key,
+				values: (getValues as GetValueFunc<typeof key>)(component),
+				editFn: () => {
+					// $reportMaker[upsertKeyComponent] = cloneDeep(component as UpsertComponent<typeof key>);
+					switch (key) {
+						case 'input':
+							$reportMaker.upsertInputComponent = cloneDeep(component as UpsertComponent<'input'>);
+							break;
+						case 'card':
+							$reportMaker.upsertCardComponent = cloneDeep(component as UpsertComponent<'card'>);
+							break;
+						case 'table':
+							$reportMaker.upsertTableComponent = cloneDeep(component as UpsertComponent<'table'>);
+							break;
+					}
+				},
+				deleteFn: () => reportMaker.deleteComponent(key, component.id)
+			}))
 	);
 </script>
 

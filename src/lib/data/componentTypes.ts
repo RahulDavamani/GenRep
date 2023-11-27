@@ -21,17 +21,17 @@ export type ComponentType<T extends ComponentKey> = {
 	};
 
 	server: {
-		deleteFn?: () => void | Promise<void>;
-		upsertFn?: () => void | Promise<void>;
+		deleteFn?: ServerFn<T>;
+		upsertFn?: ServerFn<T>;
 	};
 };
 
 export type ComponentLabels<T extends ComponentKey> = {
 	key: T;
 	Key: Capitalize<T>;
-	componentKey: `${T}Component`;
-	componentsKey: `${T}Components`;
-	upsertComponentKey: `upsert${Capitalize<T>}Component`;
+	keyComponent: `${T}Component`;
+	keyComponents: `${T}Components`;
+	upsertKeyComponent: `upsert${Capitalize<T>}Component`;
 };
 
 export type UpsertComponent<T extends ComponentKey> = T extends 'input'
@@ -41,6 +41,12 @@ export type UpsertComponent<T extends ComponentKey> = T extends 'input'
 	: T extends 'table'
 	? UpsertTableComponent
 	: never;
+
+export type UpsertComponents = {
+	[K in ComponentKey as `upsert${Capitalize<K>}Component`]?: UpsertComponent<K>;
+};
+
+export type ServerFn<T extends ComponentKey> = (components: UpsertComponent<T>[]) => void | Promise<void>;
 
 export type GetValueFunc<T extends ComponentKey> = (component: UpsertComponent<T>) => {
 	key: T;
@@ -58,9 +64,9 @@ const getLabels = <T extends ComponentKey>(key: T): ComponentLabels<T> => {
 	return {
 		key,
 		Key,
-		componentKey: `${key}Component`,
-		componentsKey: `${key}Components`,
-		upsertComponentKey: `upsert${Key}Component`
+		keyComponent: `${key}Component`,
+		keyComponents: `${key}Components`,
+		upsertKeyComponent: `upsert${Key}Component`
 	};
 };
 

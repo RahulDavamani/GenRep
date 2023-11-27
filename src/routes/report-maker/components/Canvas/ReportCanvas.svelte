@@ -6,29 +6,32 @@
 	import TableComponent from './TableComponent.svelte';
 	import InputComponent from './InputComponent.svelte';
 
+	export let view = false;
 	$: ({
 		upsertReport: { theme, canvasHeight, inputComponents, cardComponents, tableComponents }
 	} = $reportMaker);
 
-	onMount(() => canvasInteract());
+	onMount(() => {
+		if (!view) canvasInteract();
+	});
 
 	let canvasElement: HTMLDivElement;
-	$: if (canvasElement) canvasElement.style.height = `${canvasHeight}px`;
+	$: if (!view && canvasElement) canvasElement.style.height = `${canvasHeight}px`;
 </script>
 
 <div
 	id="reportCanvas"
-	class="border shadow rounded-lg w-[1000px] mt-8 mb-20 mx-auto"
+	class={view ? '' : 'border shadow rounded-lg w-[1000px] mt-8 mb-20 mx-auto'}
 	data-theme={theme}
 	bind:this={canvasElement}
 >
 	{#each inputComponents as inputComponent}
-		<InputComponent {inputComponent} />
+		<InputComponent {inputComponent} {view} />
 	{/each}
 	{#each cardComponents as cardComponent}
-		<CardComponent {cardComponent} />
+		<CardComponent {cardComponent} {view} />
 	{/each}
 	{#each tableComponents as tableComponent}
-		<TableComponent {tableComponent} />
+		<TableComponent {tableComponent} {view} />
 	{/each}
 </div>

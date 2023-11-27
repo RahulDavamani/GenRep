@@ -143,8 +143,10 @@ model InputComponent {
    updatedAt DateTime @updatedAt
    name      String
 
-   label String
-   type  String
+   label     String
+   type      String
+   valueType String?
+   values    String?
 
    reportId     String
    queryParamId String?

@@ -1,10 +1,4 @@
-import type {
-	UpsertCardComponent,
-	UpsertDataset,
-	UpsertInputComponent,
-	UpsertReport,
-	UpsertTableComponent
-} from '$lib/reportSchema';
+import type { UpsertDataset, UpsertReport } from '$lib/reportSchema';
 import { get, writable } from 'svelte/store';
 import { trpcClientErrorHandler, type TRPCZodErrors } from '../trpc/trpcErrorhandler';
 import { trpc } from '../trpc/client';
@@ -14,13 +8,19 @@ import { page } from '$app/stores';
 import { getQueryParams, replaceQueryParams } from '$lib/client/queryParams';
 import { nanoid } from 'nanoid';
 import cloneDeep from 'lodash.clonedeep';
-import { componentTypes, type ComponentKey } from '../lib/data/componentTypes';
+import {
+	componentTypes,
+	type ComponentKey,
+	componentTypesList,
+	type ComponentType,
+	type UpsertComponents
+} from '../lib/data/componentTypes';
 
 export interface DBData {
 	[key: string]: { [key: string]: unknown }[] | undefined;
 }
 
-export interface ReportMaker {
+export type ReportMaker = {
 	init: boolean;
 	upsertReport: UpsertReport;
 	zodErrors?: TRPCZodErrors<UpsertReport>;
@@ -31,23 +31,23 @@ export interface ReportMaker {
 	dbData: DBData;
 
 	showComponentList: boolean;
-	upsertInputComponent?: UpsertInputComponent;
-	upsertCardComponent?: UpsertCardComponent;
-	upsertTableComponent?: UpsertTableComponent;
-}
+} & UpsertComponents;
 
 export const reportMaker = (() => {
-	const newReport = {
-		id: nanoid(),
-		name: '',
-		description: '',
-		theme: '',
-		canvasHeight: 500,
-		datasets: [],
-		inputComponents: [],
-		cardComponents: [],
-		tableComponents: []
-	};
+	const newReport: UpsertReport = (() => {
+		const components = Object.fromEntries(componentTypesList.map((ct) => [ct.labels.keyComponents, []])) as {
+			[k in ComponentType<ComponentKey>['labels']['keyComponents']]: [];
+		};
+		return {
+			id: nanoid(),
+			name: '',
+			description: '',
+			theme: '',
+			canvasHeight: 500,
+			datasets: [],
+			...components
+		};
+	})();
 
 	// State
 	const { subscribe, set, update } = writable<ReportMaker>({
@@ -173,16 +173,16 @@ export const reportMaker = (() => {
 		update((state) => ({
 			...state,
 			showComponentList: false,
-			[componentTypes[type].labels.upsertComponentKey]: componentTypes[type].client.newComponent
+			[componentTypes[type].labels.upsertKeyComponent]: componentTypes[type].client.newComponent
 		}));
 
 	const submitComponent = (type: ComponentKey) =>
 		update((state) => {
 			const {
-				labels: { componentsKey, upsertComponentKey }
+				labels: { keyComponents, upsertKeyComponent }
 			} = componentTypes[type];
-			const components = state.upsertReport[componentsKey];
-			const upsertComponent = state[upsertComponentKey];
+			const components = state.upsertReport[keyComponents];
+			const upsertComponent = state[upsertKeyComponent];
 			if (!upsertComponent) return state;
 
 			const i = components.findIndex((c) => c.id === upsertComponent?.id);
@@ -191,8 +191,8 @@ export const reportMaker = (() => {
 
 			return {
 				...state,
-				upsertReport: { ...state.upsertReport, [componentsKey]: components },
-				[upsertComponentKey]: undefined
+				upsertReport: { ...state.upsertReport, [keyComponents]: components },
+				[upsertKeyComponent]: undefined
 			};
 		});
 

@@ -3,28 +3,49 @@
 	import type { UpsertInputComponent } from '$lib/reportSchema';
 	import { onMount } from 'svelte';
 	import { reportMaker } from '../../../../stores/report-maker.store';
+	import { trpc } from '../../../../trpc/client';
+	import { page } from '$app/stores';
+	import { ui } from '../../../../stores/ui.store';
 
 	export let view = false;
 	export let inputComponent: UpsertInputComponent;
 
-	$: ({ id, queryParamId, label, type, properties } = inputComponent);
+	$: ({ id, queryParamId, label, type, valueType, values, properties } = inputComponent);
 	$: ({ x, y, width, height, bgColor, textColor, shadow, rounded, border, outline } = properties);
 	$: ({
 		upsertReport: { datasets, inputComponents }
 	} = $reportMaker);
+
 	$: datasetI = datasets.findIndex((d) => d.queryParams.find((qp) => qp.id === queryParamId));
 	$: qpI = datasets[datasetI].queryParams.findIndex((qp) => qp.id === queryParamId);
 
-	onMount(() =>
-		componentInteract(
-			id,
-			() => properties,
-			(properties) =>
-				($reportMaker.upsertReport.inputComponents = inputComponents.map((c) =>
-					c.id === id ? { ...c, properties } : c
-				))
-		)
-	);
+	let options: string[] = [];
+	$: valueType && values && getOptions(valueType, values);
+
+	const getOptions = async (valueType: string, values: string) => {
+		if (valueType === 'values') options = values.split(',');
+		else {
+			if ($ui.loader === undefined) ui.setLoader({ title: 'Loading options' });
+			const x = await trpc($page).database.queryData.query({
+				id: datasets[datasetI].databaseId ?? '',
+				query: values
+			});
+			options = x.data.map((y) => String(Object.entries(y)[0][1]));
+			ui.setLoader();
+		}
+	};
+
+	if (!view)
+		onMount(() =>
+			componentInteract(
+				id,
+				() => properties,
+				(properties) =>
+					($reportMaker.upsertReport.inputComponents = inputComponents.map((c) =>
+						c.id === id ? { ...c, properties } : c
+					))
+			)
+		);
 
 	let innerWidth = 0;
 	let element: HTMLDivElement | undefined;
@@ -32,7 +53,7 @@
 		Object.assign(element.style, {
 			width: `${view ? (width / 1000) * innerWidth : width}px`,
 			height: `${view ? (height / 1000) * innerWidth : height}px`,
-			transform: `translate(${view ? (x / 1000) * innerWidth : x}px, ${y}px)`
+			transform: `translate(${view ? (x / 1000) * innerWidth : x}px, ${view ? (y / 1000) * innerWidth : y}px)`
 		});
 </script>
 
@@ -113,6 +134,19 @@
 				class="textarea textarea-bordered"
 				bind:value={$reportMaker.upsertReport.datasets[datasetI].queryParams[qpI].value}
 			/>
+		</div>
+	{:else if type === 'select'}
+		<div class="form-control w-full">
+			<div class="label font-semibold">{label}</div>
+			<select
+				placeholder="Type here"
+				class="select select-bordered"
+				bind:value={$reportMaker.upsertReport.datasets[datasetI].queryParams[qpI].value}
+			>
+				{#each options as value}
+					<option {value}>{value}</option>
+				{/each}
+			</select>
 		</div>
 	{:else if type === 'checkbox'}
 		<div class="form-control">

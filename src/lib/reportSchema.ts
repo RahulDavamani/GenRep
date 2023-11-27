@@ -21,6 +21,8 @@ export const upsertInputComponentSchema = z.object({
 
 	label: z.string(),
 	type: z.string().min(1),
+	valueType: z.string().min(1).nullish(),
+	values: z.string().min(1).nullish(),
 
 	properties: upsertProperties
 });

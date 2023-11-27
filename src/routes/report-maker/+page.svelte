@@ -9,7 +9,6 @@
 
 	export let data;
 	let { apiKey, report, theme } = data;
-	$: console.log(apiKey);
 
 	let hideUI = false;
 

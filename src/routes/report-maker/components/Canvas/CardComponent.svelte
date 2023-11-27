@@ -12,16 +12,20 @@
 		upsertReport: { cardComponents },
 		dbData
 	} = $reportMaker);
+
 	$: data = dbData[datasetId ?? '']?.[rowNumber - 1][column];
 
-	onMount(() =>
-		componentInteract(
-			id,
-			() => properties,
-			(properties) =>
-				($reportMaker.upsertReport.cardComponents = cardComponents.map((c) => (c.id === id ? { ...c, properties } : c)))
-		)
-	);
+	if (!view)
+		onMount(() =>
+			componentInteract(
+				id,
+				() => properties,
+				(properties) =>
+					($reportMaker.upsertReport.cardComponents = cardComponents.map((c) =>
+						c.id === id ? { ...c, properties } : c
+					))
+			)
+		);
 
 	let innerWidth = 0;
 	let element: HTMLDivElement | undefined;
@@ -29,7 +33,7 @@
 		Object.assign(element.style, {
 			width: `${view ? (width / 1000) * innerWidth : width}px`,
 			height: `${view ? (height / 1000) * innerWidth : height}px`,
-			transform: `translate(${view ? (x / 1000) * innerWidth : x}px, ${y}px)`
+			transform: `translate(${view ? (x / 1000) * innerWidth : x}px, ${view ? (y / 1000) * innerWidth : y}px)`
 		});
 </script>
 
