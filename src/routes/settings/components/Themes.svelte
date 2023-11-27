@@ -29,7 +29,7 @@
             {data.theme === th && 'outline outline-primary'}"
 				on:click={() => updateTheme(th)}
 			>
-				<div class="card-body p-0">
+				<div class="card-body p-0 text-center">
 					<div class="grid grid-cols-5 grid-rows-3">
 						<div class="col-span-5 row-span-3 row-start-1 flex gap-1 py-3 px-4">
 							<div class="flex-grow text-sm font-bold">{th.toUpperCase()}</div>

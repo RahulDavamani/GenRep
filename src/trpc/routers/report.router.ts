@@ -1,69 +1,14 @@
 import { z } from 'zod';
 import { authProcedure, procedure, router } from '../trpc';
 import prismaErrorHandler from '../../prisma/prismaErrorHandler';
-import { upsertReportSchema, type UpsertProperties } from '$lib/reportSchema';
+import { upsertReportSchema } from '$lib/reportSchema';
 import {
+	componentIncludes,
 	componentTypesList,
-	type ComponentType,
-	type ComponentKey,
-	type UpsertComponent,
+	prismaDeleteComponents,
+	prismaUpsertComponents,
 	type ServerFn
 } from '../../lib/data/componentTypes';
-
-type ComponentIncludes = {
-	[K in ComponentType<ComponentKey>['labels']['keyComponents']]: { include: { properties: boolean } };
-};
-
-const componentIncludes = Object.fromEntries(
-	componentTypesList.map((ct) => [ct.labels.keyComponents, { include: { properties: true } }])
-) as ComponentIncludes;
-
-export const deleteComponents = async (
-	reportId: string,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	prismaTable: any,
-	components: UpsertComponent<ComponentKey>[]
-) => {
-	const existingComponents = (await prismaTable.findMany({
-		where: { reportId },
-		select: { id: true }
-	})) as { id: string }[];
-
-	const deleteComponents = existingComponents.filter((ec) => !components.find((c) => ec.id === c.id)).map((d) => d.id);
-	await prismaTable.deleteMany({ where: { id: { in: deleteComponents } } });
-};
-
-export const upsertComponents = async (
-	reportId: string,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	prismaTable: any,
-	components: UpsertComponent<ComponentKey>[]
-) => {
-	for (const { id, properties, ...values } of components) {
-		const propertiesId = await upsertProperties(properties);
-		await prismaTable.upsert({
-			where: { id },
-			create: {
-				reportId,
-				propertiesId,
-				...values
-			},
-			update: { ...values }
-		});
-	}
-};
-
-export const upsertProperties = async (properties: UpsertProperties) => {
-	const { id, x, y, width, height, bgColor, textColor, shadow, rounded, border, outline } = properties;
-	return (
-		await prisma.componentProperties.upsert({
-			where: { id },
-			create: { x, y, width, height, bgColor, textColor, shadow, rounded, border, outline },
-			update: { x, y, width, height, bgColor, textColor, shadow, rounded, border, outline },
-			select: { id: true }
-		})
-	).id;
-};
 
 export const reportRouter = router({
 	getAll: authProcedure.query(async ({ ctx: { session } }) => {
@@ -101,15 +46,9 @@ export const reportRouter = router({
 				description,
 				canvasHeight,
 				theme,
-				inputComponents,
-				cardComponents,
-				tableComponents
+				...allComponents
 			}
 		}) => {
-			const allComponents: {
-				[K in ComponentType<ComponentKey>['labels']['keyComponents']]: UpsertComponent<ComponentKey>[];
-			} = { inputComponents, cardComponents, tableComponents };
-
 			// Report
 			const reportId = (
 				await prisma.report.upsert({
@@ -160,11 +99,11 @@ export const reportRouter = router({
 				labels: { key, keyComponent, keyComponents },
 				server: { deleteFn, upsertFn }
 			} of componentTypesList) {
-				if (deleteFn) await (deleteFn as ServerFn<typeof key>)(allComponents[keyComponents]);
-				else await deleteComponents(reportId, prisma[keyComponent], allComponents[keyComponents]);
+				if (deleteFn) await (deleteFn as ServerFn<typeof key>)(reportId, session.user_id, allComponents[keyComponents]);
+				else await prismaDeleteComponents(reportId, prisma[keyComponent], allComponents[keyComponents]);
 
-				if (upsertFn) await (upsertFn as ServerFn<typeof key>)(allComponents[keyComponents]);
-				else await upsertComponents(reportId, prisma[keyComponent], allComponents[keyComponents]);
+				if (upsertFn) await (upsertFn as ServerFn<typeof key>)(reportId, session.user_id, allComponents[keyComponents]);
+				else await prismaUpsertComponents(reportId, prisma[keyComponent], allComponents[keyComponents]);
 			}
 
 			return { reportId };

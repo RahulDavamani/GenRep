@@ -98,11 +98,12 @@ model Report {
    canvasHeight Int
    userId       String
 
-   user            User             @relation(fields: [userId], references: [id])
-   datasets        Dataset[]
-   cardComponents  CardComponent[]
-   tableComponents TableComponent[]
-   inputComponents InputComponent[]
+   user             User              @relation(fields: [userId], references: [id])
+   datasets         Dataset[]
+   cardComponents   CardComponent[]
+   tableComponents  TableComponent[]
+   inputComponents  InputComponent[]
+   buttonComponents ButtonComponent[]
 
    @@unique([userId, name])
 }
@@ -116,11 +117,12 @@ model Dataset {
    databaseId String?
    reportId   String
 
-   database        Database?        @relation(fields: [databaseId], references: [id])
-   report          Report           @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-   cardComponents  CardComponent[]
-   queryParams     QueryParam[]
-   tableComponents TableComponent[]
+   database         Database?         @relation(fields: [databaseId], references: [id])
+   report           Report            @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+   cardComponents   CardComponent[]
+   queryParams      QueryParam[]
+   tableComponents  TableComponent[]
+   buttonComponents ButtonComponent[]
 
    @@unique([reportId, name])
 }
@@ -154,6 +156,24 @@ model InputComponent {
 
    report     Report              @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
    queryParam QueryParam?         @relation(fields: [queryParamId], references: [id])
+   properties ComponentProperties @relation(fields: [propertiesId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model ButtonComponent {
+   id        String   @id @unique @default(nanoid())
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+   name      String
+
+   type String
+   text String
+
+   reportId     String
+   datasetId    String?
+   propertiesId String  @unique
+
+   report     Report              @relation(fields: [reportId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+   dataset    Dataset?            @relation(fields: [datasetId], references: [id])
    properties ComponentProperties @relation(fields: [propertiesId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
@@ -200,20 +220,23 @@ model TableComponent {
 }
 
 model ComponentProperties {
-   id             String          @id @unique @default(nanoid())
-   createdAt      DateTime        @default(now())
-   updatedAt      DateTime        @updatedAt
-   x              Int
-   y              Int
-   width          Int
-   height         Int
-   bgColor        String
-   textColor      String
-   shadow         String
-   rounded        String
-   border         Boolean
-   outline        Boolean
-   cardComponent  CardComponent?
-   tableComponent TableComponent?
-   inputComponent InputComponent?
+   id              String           @id @unique @default(nanoid())
+   createdAt       DateTime         @default(now())
+   updatedAt       DateTime         @updatedAt
+   x               Int
+   y               Int
+   width           Int
+   height          Int
+   padding         Int
+   opacity         Int
+   bgColor         String
+   textColor       String
+   shadow          String
+   rounded         String
+   border          Boolean
+   outline         Boolean
+   cardComponent   CardComponent?
+   tableComponent  TableComponent?
+   inputComponent  InputComponent?
+   buttonComponent ButtonComponent?
 }

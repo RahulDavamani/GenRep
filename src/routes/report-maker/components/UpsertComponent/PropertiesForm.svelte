@@ -44,14 +44,36 @@
 			</div>
 
 			<div class="form-control flex-grow">
+				<div class="label">Padding</div>
+				<input
+					type="number"
+					placeholder="Type here"
+					class="input input-sm input-bordered"
+					bind:value={properties.padding}
+				/>
+			</div>
+			<div class="form-control flex-grow">
+				<div class="label">Opacity</div>
+				<input
+					type="range"
+					min="0"
+					max="100"
+					class="range range-primary"
+					style=" opacity: {properties.opacity / 100}"
+					bind:value={properties.opacity}
+				/>
+			</div>
+
+			<div class="form-control flex-grow">
 				<div class="label">Background Color</div>
 				<select
 					placeholder="Type here"
-					class="select select-sm select-bordered {properties.bgColor}"
+					class="select select-sm select-bordered {properties.bgColor} {properties.textColor}"
 					bind:value={properties.bgColor}
+					data-theme={upsertReport.theme}
 				>
 					{#each componentProperties.bgColors as { key, value }}
-						<option class={key} value={key} data-theme={upsertReport.theme}>{value}</option>
+						<option class={key} value={key}>{value}</option>
 					{/each}
 				</select>
 			</div>
@@ -59,11 +81,12 @@
 				<div class="label">Text Color</div>
 				<select
 					placeholder="Type here"
-					class="select select-sm select-bordered {properties.textColor}"
+					class="select select-sm select-bordered {properties.bgColor} {properties.textColor}"
 					bind:value={properties.textColor}
+					data-theme={upsertReport.theme}
 				>
 					{#each componentProperties.textColors as { key, value }}
-						<option class={key} value={key} data-theme={upsertReport.theme}>{value}</option>
+						<option class={key} value={key}>{value}</option>
 					{/each}
 				</select>
 			</div>

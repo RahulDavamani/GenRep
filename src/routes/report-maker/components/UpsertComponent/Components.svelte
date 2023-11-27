@@ -6,18 +6,22 @@
 	import UpsertTableComponent from './UpsertTableComponent.svelte';
 	import cloneDeep from 'lodash.clonedeep';
 	import UpsertInputComponent from './UpsertInputComponent.svelte';
-	import { componentTypesList, type GetValueFunc, type UpsertComponent } from '$lib/data/componentTypes';
+	import { componentTypesList, type GetTableValues, type UpsertComponent } from '$lib/data/componentTypes';
+	import UpsertButtonComponent from './UpsertButtonComponent.svelte';
 
-	$: componentValues = componentTypesList.flatMap(
-		({ labels: { key, keyComponents, upsertKeyComponent }, client: { getValues } }) =>
+	$: tableValues = componentTypesList.flatMap(
+		({ labels: { key, keyComponents, upsertKeyComponent }, client: { getTableValues } }) =>
 			$reportMaker.upsertReport[keyComponents].flatMap((component) => ({
 				key,
-				values: (getValues as GetValueFunc<typeof key>)(component),
+				values: (getTableValues as GetTableValues<typeof key>)(component),
 				editFn: () => {
 					// $reportMaker[upsertKeyComponent] = cloneDeep(component as UpsertComponent<typeof key>);
 					switch (key) {
 						case 'input':
 							$reportMaker.upsertInputComponent = cloneDeep(component as UpsertComponent<'input'>);
+							break;
+						case 'button':
+							$reportMaker.upsertButtonComponent = cloneDeep(component as UpsertComponent<'button'>);
 							break;
 						case 'card':
 							$reportMaker.upsertCardComponent = cloneDeep(component as UpsertComponent<'card'>);
@@ -37,7 +41,7 @@
 	<div class="collapse-title">
 		<div class="flex items-center gap-2 text-lg font-semibold">
 			<Icon icon="mdi:view-dashboard-outline" />
-			Components: <span class="font-mono">({componentValues.length})</span>
+			Components: <span class="font-mono">({tableValues.length})</span>
 			<button class="z-10 text-success" on:click={() => ($reportMaker.showComponentList = true)}>
 				<Icon icon="mdi:add-circle" width={24} />
 			</button>
@@ -57,7 +61,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each componentValues as { values: { key, name, datasetId, values }, editFn, deleteFn }}
+					{#each tableValues as { values: { key, name, datasetId, values }, editFn, deleteFn }}
 						{@const datasetName = $reportMaker.upsertReport.datasets.find((d) => d.id === datasetId)?.name}
 						<tr class="hover">
 							<td>
@@ -92,5 +96,6 @@
 <ComponentList />
 
 <UpsertInputComponent />
+<UpsertButtonComponent />
 <UpsertCardComponent />
 <UpsertTableComponent />

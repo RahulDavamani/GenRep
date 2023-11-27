@@ -6,12 +6,12 @@
 	import { trpc } from '../../../../trpc/client';
 	import { page } from '$app/stores';
 	import { ui } from '../../../../stores/ui.store';
+	import { getComponentClass, getComponentStyle } from '$lib/data/componentTypes';
 
 	export let view = false;
 	export let inputComponent: UpsertInputComponent;
 
 	$: ({ id, queryParamId, label, type, valueType, values, properties } = inputComponent);
-	$: ({ x, y, width, height, bgColor, textColor, shadow, rounded, border, outline } = properties);
 	$: ({
 		upsertReport: { datasets, inputComponents }
 	} = $reportMaker);
@@ -49,23 +49,12 @@
 
 	let innerWidth = 0;
 	let element: HTMLDivElement | undefined;
-	$: if (element)
-		Object.assign(element.style, {
-			width: `${view ? (width / 1000) * innerWidth : width}px`,
-			height: `${view ? (height / 1000) * innerWidth : height}px`,
-			transform: `translate(${view ? (x / 1000) * innerWidth : x}px, ${view ? (y / 1000) * innerWidth : y}px)`
-		});
+	$: if (element) Object.assign(element.style, getComponentStyle(view, innerWidth, properties));
 </script>
 
 <svelte:window bind:innerWidth />
 
-<div
-	{id}
-	class="absolute flex flex-col justify-center items-center {bgColor} {textColor} {shadow} {rounded} 
-   {border && 'border'} {outline && 'outline'}
-   overflow-auto p-4 hover:outline hover:outline-1 hover:outline-blue-300 active:outline-blue-700"
-	bind:this={element}
->
+<div {id} class={getComponentClass(view, properties)} bind:this={element}>
 	{#if type === 'text'}
 		<div class="form-control w-full">
 			<div class="label font-semibold">{label}</div>

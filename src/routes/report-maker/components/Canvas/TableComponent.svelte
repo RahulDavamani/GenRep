@@ -3,11 +3,12 @@
 	import { onMount } from 'svelte';
 	import { reportMaker } from '../../../../stores/report-maker.store';
 	import { componentInteract } from '$lib/client/interact';
+	import { getComponentClass, getComponentStyle } from '$lib/data/componentTypes';
 
 	export let view = false;
 	export let tableComponent: UpsertTableComponent;
 	$: ({ id, datasetId, label, columns, rows, properties } = tableComponent);
-	$: ({ x, y, width, height, bgColor, textColor, shadow, rounded, border, outline } = properties);
+	$: ({ x, y, width, height, padding, opacity, bgColor, textColor, shadow, rounded, border, outline } = properties);
 	$: ({
 		upsertReport: { tableComponents },
 		dbData
@@ -45,21 +46,15 @@
 
 	let innerWidth = 0;
 	let element: HTMLDivElement | undefined;
-	$: if (element)
-		Object.assign(element.style, {
-			width: `${view ? (width / 1000) * innerWidth : width}px`,
-			height: `${view ? (height / 1000) * innerWidth : height}px`,
-			transform: `translate(${view ? (x / 1000) * innerWidth : x}px, ${view ? (y / 1000) * innerWidth : y}px)`
-		});
+	$: if (element) Object.assign(element.style, getComponentStyle(view, innerWidth, properties));
 </script>
 
 <svelte:window bind:innerWidth />
 
 <div
 	{id}
-	class="absolute flex flex-col justify-center items-center {bgColor} {textColor} {shadow} {rounded} 
-   {border && 'border'} {outline && 'outline'}
-   overflow-auto p-4 hover:outline hover:outline-1 hover:outline-blue-300 active:outline-blue-700"
+	class={getComponentClass(view, properties)}
+	style="padding: {padding}px; opacity: {opacity / 100}"
 	bind:this={element}
 >
 	<div class="text-lg font-semibold mb-2">{label}</div>

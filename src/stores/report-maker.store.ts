@@ -139,11 +139,12 @@ export const reportMaker = (() => {
 	};
 
 	const fetchDataset = async (id: string) => {
-		ui.setLoader({ title: 'Fetching Dataset' });
 		const $page = get(page);
 
 		const dataset = get(reportMaker).upsertReport.datasets.find((d) => d.id === id);
+
 		if (!dataset) return;
+		ui.setLoader({ title: `Fetching Dataset: ${dataset?.name}` });
 
 		const { databaseId, query, queryParams } = dataset;
 		if (!databaseId) return ui.showToast({ class: 'alert-error', title: 'Database not found' });

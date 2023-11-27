@@ -4,8 +4,10 @@ export const upsertProperties = z.object({
 	id: z.string().min(1),
 	x: z.number(),
 	y: z.number(),
-	width: z.number(),
-	height: z.number(),
+	width: z.number().min(0),
+	height: z.number().min(0),
+	padding: z.number(),
+	opacity: z.number().min(0).max(100),
 	bgColor: z.string().min(1),
 	textColor: z.string().min(1),
 	shadow: z.string().min(1),
@@ -23,6 +25,17 @@ export const upsertInputComponentSchema = z.object({
 	type: z.string().min(1),
 	valueType: z.string().min(1).nullish(),
 	values: z.string().min(1).nullish(),
+
+	properties: upsertProperties
+});
+
+export const upsertButtonComponentSchema = z.object({
+	id: z.string().min(1),
+	datasetId: z.string().min(1).nullish(),
+	name: z.string().min(1),
+
+	type: z.string().min(1),
+	text: z.string(),
 
 	properties: upsertProperties
 });
@@ -78,6 +91,7 @@ export const upsertReportSchema = z.object({
 	canvasHeight: z.number(),
 	datasets: z.array(upsertDatasetSchema),
 	inputComponents: z.array(upsertInputComponentSchema),
+	buttonComponents: z.array(upsertButtonComponentSchema),
 	cardComponents: z.array(upsertCardComponentSchema),
 	tableComponents: z.array(upsertTableComponentSchema)
 });
@@ -85,6 +99,7 @@ export const upsertReportSchema = z.object({
 export type UpsertReport = z.infer<typeof upsertReportSchema>;
 export type UpsertDataset = z.infer<typeof upsertDatasetSchema>;
 export type UpsertInputComponent = z.infer<typeof upsertInputComponentSchema>;
+export type UpsertButtonComponent = z.infer<typeof upsertButtonComponentSchema>;
 export type UpsertCardComponent = z.infer<typeof upsertCardComponentSchema>;
 export type UpsertTableComponent = z.infer<typeof upsertTableComponentSchema>;
 export type UpsertProperties = z.infer<typeof upsertProperties>;

@@ -1,0 +1,156 @@
+Date : 2023-11-27 20:18:14
+Directory : c:\Users\rahul\OneDrive\Documents\Projects\GenRep
+Total : 87 files,  8351 codes, 46 comments, 1129 blanks, all 9526 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| YAML               |          1 |      4,082 |          0 |        604 |      4,686 |
+| Svelte             |         33 |      2,238 |         19 |        224 |      2,481 |
+| TypeScript         |         41 |      1,618 |         22 |        230 |      1,870 |
+| Prisma             |          1 |        195 |          2 |         46 |        243 |
+| JavaScript         |          4 |         81 |          2 |          7 |         90 |
+| JSON               |          2 |         77 |          0 |          2 |         79 |
+| Markdown           |          1 |         19 |          0 |         10 |         29 |
+| JSON with Comments |          1 |         13 |          0 |          1 |         14 |
+| Ignore             |          1 |         11 |          1 |          2 |         14 |
+| HTML               |          1 |         11 |          0 |          1 |         12 |
+| CSS                |          1 |          6 |          0 |          2 |          8 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                              | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                 |         87 |      8,351 |         46 |      1,129 |      9,526 |
+| . (Files)                                                                                                                         |         11 |      4,289 |          3 |        628 |      4,920 |
+| src                                                                                                                               |         76 |      4,062 |         43 |        501 |      4,606 |
+| src (Files)                                                                                                                       |          4 |         60 |          8 |         13 |         81 |
+| src\lib                                                                                                                           |         18 |        779 |          4 |         85 |        868 |
+| src\lib (Files)                                                                                                                   |          3 |        127 |          1 |         25 |        153 |
+| src\lib\client                                                                                                                    |          4 |        110 |          0 |         13 |        123 |
+| src\lib\data                                                                                                                      |          8 |        463 |          3 |         37 |        503 |
+| src\lib\server                                                                                                                    |          3 |         79 |          0 |         10 |         89 |
+| src\lib\server (Files)                                                                                                            |          1 |         22 |          0 |          4 |         26 |
+| src\lib\server\knex                                                                                                               |          2 |         57 |          0 |          6 |         63 |
+| src\prisma                                                                                                                        |          3 |        215 |          2 |         52 |        269 |
+| src\routes                                                                                                                        |         41 |      2,348 |         23 |        253 |      2,624 |
+| src\routes (Files)                                                                                                                |          5 |         98 |          0 |         16 |        114 |
+| src\routes\components                                                                                                             |          4 |        109 |          5 |         13 |        127 |
+| src\routes\login                                                                                                                  |          3 |         55 |          4 |         11 |         70 |
+| src\routes\login (Files)                                                                                                          |          1 |          1 |          0 |          1 |          2 |
+| src\routes\login\google                                                                                                           |          2 |         54 |          4 |         10 |         68 |
+| src\routes\login\google (Files)                                                                                                   |          1 |         18 |          1 |          2 |         21 |
+| src\routes\login\google\callback                                                                                                  |          1 |         36 |          3 |          8 |         47 |
+| src\routes\logout                                                                                                                 |          1 |          9 |          0 |          2 |         11 |
+| src\routes\report-maker                                                                                                           |         19 |      1,504 |          3 |        151 |      1,658 |
+| src\routes\report-maker (Files)                                                                                                   |          2 |         84 |          1 |         12 |         97 |
+| src\routes\report-maker\components                                                                                                |         17 |      1,420 |          2 |        139 |      1,561 |
+| src\routes\report-maker\components (Files)                                                                                        |          3 |        147 |          2 |         12 |        161 |
+| src\routes\report-maker\components\Canvas                                                                                         |          5 |        351 |          0 |         36 |        387 |
+| src\routes\report-maker\components\Datasets                                                                                       |          2 |        182 |          0 |         18 |        200 |
+| src\routes\report-maker\components\UpsertComponent                                                                                |          7 |        740 |          0 |         73 |        813 |
+| src\routes\settings                                                                                                               |          7 |        549 |         11 |         51 |        611 |
+| src\routes\settings (Files)                                                                                                       |          2 |         31 |          0 |          6 |         37 |
+| src\routes\settings\components                                                                                                    |          5 |        518 |         11 |         45 |        574 |
+| src\routes\view-report                                                                                                            |          2 |         24 |          0 |          9 |         33 |
+| src\stores                                                                                                                        |          2 |        251 |          4 |         39 |        294 |
+| src\trpc                                                                                                                          |          8 |        409 |          2 |         59 |        470 |
+| src\trpc (Files)                                                                                                                  |          3 |        111 |          0 |         24 |        135 |
+| src\trpc\routers                                                                                                                  |          5 |        298 |          2 |         35 |        335 |
++-----------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                                                                          | language           | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\.eslintrc.cjs                                                                   | JavaScript         |         25 |          0 |          1 |         26 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\.prettierignore                                                                 | Ignore             |         11 |          1 |          2 |         14 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\.prettierrc                                                                     | JSON               |          9 |          0 |          1 |         10 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\README.md                                                                       | Markdown           |         19 |          0 |         10 |         29 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\package.json                                                                    | JSON               |         68 |          0 |          1 |         69 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\pnpm-lock.yaml                                                                  | YAML               |      4,082 |          0 |        604 |      4,686 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\postcss.config.js                                                               | JavaScript         |          6 |          0 |          1 |          7 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\app.css                                                                     | CSS                |          6 |          0 |          2 |          8 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\app.d.ts                                                                    | TypeScript         |         22 |          4 |          2 |         28 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\app.html                                                                    | HTML               |         11 |          0 |          1 |         12 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\hooks.server.ts                                                             | TypeScript         |         21 |          4 |          8 |         33 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\client\copyToClipboard.ts                                               | TypeScript         |          5 |          0 |          2 |          7 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\client\interact.ts                                                      | TypeScript         |         65 |          0 |          3 |         68 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\client\queryParams.ts                                                   | TypeScript         |         10 |          0 |          3 |         13 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\client\triggerAction.ts                                                 | TypeScript         |         30 |          0 |          5 |         35 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\data\appUrls.ts                                                         | TypeScript         |          4 |          0 |          1 |          5 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\data\buttonComponentTypes.ts                                            | TypeScript         |          4 |          0 |          1 |          5 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\data\componentProperties.ts                                             | TypeScript         |         45 |          0 |          5 |         50 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\data\componentTypes.ts                                                  | TypeScript         |        246 |          3 |         22 |        271 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\data\databaseProviders.ts                                               | TypeScript         |         30 |          0 |          2 |         32 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\data\errorCodes.ts                                                      | TypeScript         |         91 |          0 |          4 |         95 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\data\inputComponentTypes.ts                                             | TypeScript         |         12 |          0 |          1 |         13 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\data\themes.ts                                                          | TypeScript         |         31 |          0 |          1 |         32 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\formDataToObject.ts                                                     | TypeScript         |         19 |          1 |          6 |         26 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\objectToFormData.ts                                                     | TypeScript         |         19 |          0 |          2 |         21 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\reportSchema.ts                                                         | TypeScript         |         89 |          0 |         17 |        106 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\server\knex\queryDb.ts                                                  | TypeScript         |         29 |          0 |          3 |         32 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\server\knex\testDBConnection.ts                                         | TypeScript         |         28 |          0 |          3 |         31 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\lib\server\lucia.ts                                                         | TypeScript         |         22 |          0 |          4 |         26 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\prisma\prisma.ts                                                            | TypeScript         |          4 |          0 |          3 |          7 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\prisma\prismaErrorHandler.ts                                                | TypeScript         |         16 |          0 |          3 |         19 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\prisma\schema.prisma                                                        | Prisma             |        195 |          2 |         46 |        243 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\+error.svelte                                                        | Svelte             |          8 |          0 |          2 |         10 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\+layout.server.ts                                                    | TypeScript         |         11 |          0 |          2 |         13 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\+layout.svelte                                                       | Svelte             |         33 |          0 |          6 |         39 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\+page.server.ts                                                      | TypeScript         |          7 |          0 |          2 |          9 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\+page.svelte                                                         | Svelte             |         39 |          0 |          4 |         43 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\components\Loader.svelte                                             | Svelte             |         15 |          0 |          2 |         17 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\components\Modal.svelte                                              | Svelte             |         41 |          4 |          6 |         51 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\components\Navbar.svelte                                             | Svelte             |         38 |          1 |          3 |         42 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\components\Toast.svelte                                              | Svelte             |         15 |          0 |          2 |         17 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\login\+page.svelte                                                   | Svelte             |          1 |          0 |          1 |          2 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\login\google\+server.ts                                              | TypeScript         |         18 |          1 |          2 |         21 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\login\google\callback\+server.ts                                     | TypeScript         |         36 |          3 |          8 |         47 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\logout\+page.server.ts                                               | TypeScript         |          9 |          0 |          2 |         11 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\+page.server.ts                                         | TypeScript         |         10 |          0 |          4 |         14 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\+page.svelte                                            | Svelte             |         74 |          1 |          8 |         83 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\Canvas\ButtonComponent.svelte                | Svelte             |         35 |          0 |          7 |         42 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\Canvas\CardComponent.svelte                  | Svelte             |         34 |          0 |          7 |         41 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\Canvas\InputComponent.svelte                 | Svelte             |        168 |          0 |         10 |        178 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\Canvas\ReportCanvas.svelte                   | Svelte             |         37 |          0 |          5 |         42 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\Canvas\TableComponent.svelte                 | Svelte             |         77 |          0 |          7 |         84 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\Datasets\Datasets.svelte                     | Svelte             |         87 |          0 |          4 |         91 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\Datasets\UpsertDatasetModal.svelte           | Svelte             |         95 |          0 |         14 |        109 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\ReportForm.svelte                            | Svelte             |         56 |          0 |          6 |         62 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\SelectTheme.svelte                           | Svelte             |         47 |          2 |          3 |         52 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\UpsertComponent\Components.svelte            | Svelte             |         97 |          0 |          5 |        102 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\UpsertComponent\PropertiesForm.svelte        | Svelte             |        125 |          0 |          9 |        134 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\UpsertComponent\UpsertButtonComponent.svelte | Svelte             |         86 |          0 |         12 |         98 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\UpsertComponent\UpsertCardComponent.svelte   | Svelte             |        109 |          0 |         13 |        122 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\UpsertComponent\UpsertComponentList.svelte   | Svelte             |         34 |          0 |          4 |         38 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\UpsertComponent\UpsertInputComponent.svelte  | Svelte             |        162 |          0 |         16 |        178 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\UpsertComponent\UpsertTableComponent.svelte  | Svelte             |        127 |          0 |         14 |        141 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\report-maker\components\ViewDataset.svelte                           | Svelte             |         44 |          0 |          3 |         47 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\settings\+page.server.ts                                             | TypeScript         |          8 |          0 |          3 |         11 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\settings\+page.svelte                                                | Svelte             |         23 |          0 |          3 |         26 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\settings\components\ApiKeys.svelte                                   | Svelte             |         99 |          0 |          7 |        106 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\settings\components\Databases.svelte                                 | Svelte             |        123 |          0 |         10 |        133 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\settings\components\Themes.svelte                                    | Svelte             |         42 |          2 |          5 |         49 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\settings\components\UpsertApiKeyModal.svelte                         | Svelte             |         69 |          0 |          8 |         77 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\settings\components\UpsertDatabaseModal.svelte                       | Svelte             |        185 |          9 |         15 |        209 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\view-report\+page.server.ts                                          | TypeScript         |         11 |          0 |          6 |         17 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\routes\view-report\+page.svelte                                             | Svelte             |         13 |          0 |          3 |         16 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\stores\report-maker.store.ts                                                | TypeScript         |        195 |          3 |         28 |        226 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\stores\ui.store.ts                                                          | TypeScript         |         56 |          1 |         11 |         68 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\trpc\client.ts                                                              | TypeScript         |         10 |          0 |          3 |         13 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\trpc\routers\apiKey.router.ts                                               | TypeScript         |         30 |          0 |          5 |         35 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\trpc\routers\app.router.ts                                                  | TypeScript         |         20 |          0 |          5 |         25 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\trpc\routers\database.router.ts                                             | TypeScript         |        121 |          0 |         10 |        131 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\trpc\routers\report.router.ts                                               | TypeScript         |        114 |          2 |         13 |        129 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\trpc\routers\theme.router.ts                                                | TypeScript         |         13 |          0 |          2 |         15 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\trpc\trpc.ts                                                                | TypeScript         |         12 |          0 |          4 |         16 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\src\trpc\trpcErrorhandler.ts                                                    | TypeScript         |         89 |          0 |         17 |        106 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\svelte.config.js                                                                | JavaScript         |          9 |          1 |          4 |         14 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\tailwind.config.js                                                              | JavaScript         |         41 |          1 |          1 |         43 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\tsconfig.json                                                                   | JSON with Comments |         13 |          0 |          1 |         14 |
+| c:\Users\rahul\OneDrive\Documents\Projects\GenRep\vite.config.ts                                                                  | TypeScript         |          6 |          0 |          2 |          8 |
+| Total                                                                                                                             |                    |      8,351 |         46 |      1,129 |      9,526 |
++-----------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

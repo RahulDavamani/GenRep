@@ -5,10 +5,11 @@
 	import { canvasInteract } from '$lib/client/interact';
 	import TableComponent from './TableComponent.svelte';
 	import InputComponent from './InputComponent.svelte';
+	import ButtonComponent from './ButtonComponent.svelte';
 
 	export let view = false;
 	$: ({
-		upsertReport: { theme, canvasHeight, inputComponents, cardComponents, tableComponents }
+		upsertReport: { theme, canvasHeight, inputComponents, buttonComponents, cardComponents, tableComponents }
 	} = $reportMaker);
 
 	onMount(() => {
@@ -27,6 +28,9 @@
 >
 	{#each inputComponents as inputComponent}
 		<InputComponent {inputComponent} {view} />
+	{/each}
+	{#each buttonComponents as buttonComponent}
+		<ButtonComponent {buttonComponent} {view} />
 	{/each}
 	{#each cardComponents as cardComponent}
 		<CardComponent {cardComponent} {view} />

@@ -42,7 +42,7 @@ export const componentInteract = (
 					outer: 'parent'
 				}),
 				interact.modifiers.restrictSize({
-					min: { width: 100, height: 100 }
+					min: { width: 50, height: 50 }
 				})
 			]
 		})

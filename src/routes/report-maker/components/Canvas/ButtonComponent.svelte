@@ -1,19 +1,21 @@
 <script lang="ts">
-	import type { UpsertCardComponent } from '$lib/reportSchema';
 	import { onMount } from 'svelte';
 	import { reportMaker } from '../../../../stores/report-maker.store';
 	import { componentInteract } from '$lib/client/interact';
+	import type { UpsertButtonComponent } from '$lib/reportSchema';
 	import { getComponentClass, getComponentStyle } from '$lib/data/componentTypes';
 
 	export let view = false;
-	export let cardComponent: UpsertCardComponent;
-	$: ({ id, datasetId, label, column, rowNumber, properties } = cardComponent);
+	export let buttonComponent: UpsertButtonComponent;
+	$: ({ id, datasetId, type, text, properties } = buttonComponent);
 	$: ({
-		upsertReport: { cardComponents },
-		dbData
+		upsertReport: { buttonComponents }
 	} = $reportMaker);
 
-	$: data = dbData[datasetId ?? '']?.[rowNumber - 1][column];
+	const buttonClick = () => {
+		if (type === 'fetchAll') reportMaker.fetchAllDatasets();
+		else if (datasetId) reportMaker.fetchDataset(datasetId);
+	};
 
 	if (!view)
 		onMount(() =>
@@ -21,7 +23,7 @@
 				id,
 				() => properties,
 				(properties) =>
-					($reportMaker.upsertReport.cardComponents = cardComponents.map((c) =>
+					($reportMaker.upsertReport.buttonComponents = buttonComponents.map((c) =>
 						c.id === id ? { ...c, properties } : c
 					))
 			)
@@ -35,6 +37,5 @@
 <svelte:window bind:innerWidth />
 
 <div {id} class={getComponentClass(view, properties)} bind:this={element}>
-	<div class="text-lg font-semibold">{label}</div>
-	<div>{data}</div>
+	<button class="btn" on:click={buttonClick}>{text}</button>
 </div>

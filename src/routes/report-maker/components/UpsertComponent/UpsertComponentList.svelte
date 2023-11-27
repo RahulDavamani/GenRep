@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { reportMaker } from '../../../../stores/report-maker.store';
+	import { componentTypesList } from '$lib/data/componentTypes';
 </script>
 
 {#if $reportMaker.showComponentList}
@@ -14,24 +15,16 @@
 			</div>
 
 			<div class="flex flex-col gap-4">
-				<button
-					class="btn rounded-box text-xl justify-start normal-case"
-					on:click={() => reportMaker.showAddComponentModal('input')}
-				>
-					<Icon icon="mdi:card-text" /> Input
-				</button>
-				<button
-					class="btn rounded-box text-xl justify-start normal-case"
-					on:click={() => reportMaker.showAddComponentModal('card')}
-				>
-					<Icon icon="mdi:card-text" /> Card
-				</button>
-				<button
-					class="btn rounded-box text-xl justify-start normal-case"
-					on:click={() => reportMaker.showAddComponentModal('table')}
-				>
-					<Icon icon="mdi:table" /> Table
-				</button>
+				{#each componentTypesList as { labels: { key, Key }, client: { icon } }}
+					<button
+						class="btn rounded-box text-xl justify-start normal-case"
+						on:click={() => reportMaker.showAddComponentModal(key)}
+					>
+						<Icon {icon} />
+						{Key}
+					</button>
+				{/each}
+
 				<div class="btn rounded-box text-xl justify-start normal-case">
 					<Icon icon="mdi:chart-bar" /> Bar Graph
 				</div>
