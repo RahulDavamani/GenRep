@@ -118,7 +118,6 @@
 						class="tab tab-bordered w-1/2 text-lg font-semibold
                   {valueType === 'query' && 'tab-active'}"
 						on:click={() => {
-							console.log('hey');
 							if ($reportMaker.upsertInputComponent) $reportMaker.upsertInputComponent.valueType = 'query';
 						}}
 					>

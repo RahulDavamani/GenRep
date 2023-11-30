@@ -65,6 +65,10 @@ export const upsertTableComponentSchema = z.object({
 			.regex(/^\d+-\d+$/)
 			.min(1)
 	),
+	searching: z.boolean(),
+	ordering: z.boolean(),
+	paging: z.boolean(),
+	info: z.boolean(),
 
 	properties: upsertProperties
 });

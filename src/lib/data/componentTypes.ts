@@ -43,12 +43,12 @@ export type UpsertComponents = {
 export type UpsertComponent<T extends ComponentKey> = T extends 'input'
 	? UpsertInputComponent
 	: T extends 'button'
-	? UpsertButtonComponent
-	: T extends 'card'
-	? UpsertCardComponent
-	: T extends 'table'
-	? UpsertTableComponent
-	: never;
+	  ? UpsertButtonComponent
+	  : T extends 'card'
+	    ? UpsertCardComponent
+	    : T extends 'table'
+	      ? UpsertTableComponent
+	      : never;
 
 export type GetTableValues<T extends ComponentKey> = (component: UpsertComponent<T>) => {
 	key: T;
@@ -219,7 +219,11 @@ export const createComponentType = (key: ComponentKey): ComponentType<ComponentK
 					datasetId: undefined,
 					label: '',
 					columns: '',
-					rows: ''
+					rows: '',
+					searching: true,
+					sorting: true,
+					paging: true,
+					info: true
 				},
 				getTableValues: ({ id, datasetId, name, label, columns, rows, properties }) => ({
 					key,

@@ -10,7 +10,8 @@
 
 	let zodErrors: TRPCZodErrors<UpsertTableComponent> | undefined;
 
-	let columns: string[] = upsertTableComponent?.columns.split(',') ?? [];
+	let columns: string[] = [];
+	$: if (upsertTableComponent) columns = upsertTableComponent.columns.split(',');
 	$: allColumns = data && Object.keys(data[0]).join() === columns.join();
 
 	const closeModal = () => {
@@ -127,6 +128,51 @@
 				<span class="label text-xs">
 					Enter a specific range in this format 1-100, or leave it empty to select all rows.
 				</span>
+			</div>
+
+			<div class="text-lg font-bold mb-2">Table Options:</div>
+
+			<div class="grid grid-cols-2 gap-x-6 gap-y-1">
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">Searching</span>
+						<input
+							type="checkbox"
+							class="toggle toggle-primary"
+							bind:checked={$reportMaker.upsertTableComponent.searching}
+						/>
+					</label>
+				</div>
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">Ordering</span>
+						<input
+							type="checkbox"
+							class="toggle toggle-primary"
+							bind:checked={$reportMaker.upsertTableComponent.ordering}
+						/>
+					</label>
+				</div>
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">Paging</span>
+						<input
+							type="checkbox"
+							class="toggle toggle-primary"
+							bind:checked={$reportMaker.upsertTableComponent.paging}
+						/>
+					</label>
+				</div>
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text">Info</span>
+						<input
+							type="checkbox"
+							class="toggle toggle-primary"
+							bind:checked={$reportMaker.upsertTableComponent.info}
+						/>
+					</label>
+				</div>
 			</div>
 
 			<PropertiesForm bind:properties={$reportMaker.upsertTableComponent.properties} />
