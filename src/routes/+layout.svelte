@@ -22,7 +22,7 @@
 {/if}
 
 {#if !loader || loader.overlay !== false}
-	<div class="py-6">
+	<div>
 		<slot />
 	</div>
 {/if}
