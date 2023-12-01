@@ -250,7 +250,7 @@ export const componentTypesList = Object.values(componentTypes);
 export const componentIncludes = Object.fromEntries(
 	componentTypesList.map((ct) => [ct.labels.keyComponents, { include: { properties: true } }])
 ) as {
-	[K in ComponentKey as `upsert${Capitalize<K>}Component`]?: UpsertComponent<K>;
+	[K in ComponentKey as `${K}Components`]: { include: { properties: true } };
 };
 
 export const getComponentStyle = (

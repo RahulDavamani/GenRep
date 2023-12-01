@@ -9,30 +9,29 @@
 	import { componentTypesList, type GetTableValues, type UpsertComponent } from '$lib/data/componentTypes';
 	import UpsertButtonComponent from './UpsertButtonComponent.svelte';
 
-	$: tableValues = componentTypesList.flatMap(
-		({ labels: { key, keyComponents, upsertKeyComponent }, client: { getTableValues } }) =>
-			$reportMaker.upsertReport[keyComponents].flatMap((component) => ({
-				key,
-				values: (getTableValues as GetTableValues<typeof key>)(component),
-				editFn: () => {
-					// $reportMaker[upsertKeyComponent] = cloneDeep(component as UpsertComponent<typeof key>);
-					switch (key) {
-						case 'input':
-							$reportMaker.upsertInputComponent = cloneDeep(component as UpsertComponent<'input'>);
-							break;
-						case 'button':
-							$reportMaker.upsertButtonComponent = cloneDeep(component as UpsertComponent<'button'>);
-							break;
-						case 'card':
-							$reportMaker.upsertCardComponent = cloneDeep(component as UpsertComponent<'card'>);
-							break;
-						case 'table':
-							$reportMaker.upsertTableComponent = cloneDeep(component as UpsertComponent<'table'>);
-							break;
-					}
-				},
-				deleteFn: () => reportMaker.deleteComponent(key, component.id)
-			}))
+	$: tableValues = componentTypesList.flatMap(({ labels: { key, keyComponents }, client: { getTableValues } }) =>
+		$reportMaker.upsertReport[keyComponents].flatMap((component) => ({
+			key,
+			values: (getTableValues as GetTableValues<typeof key>)(component),
+			editFn: () => {
+				// $reportMaker[upsertKeyComponent] = cloneDeep(component as UpsertComponent<typeof key>);
+				switch (key) {
+					case 'input':
+						$reportMaker.upsertInputComponent = cloneDeep(component as UpsertComponent<'input'>);
+						break;
+					case 'button':
+						$reportMaker.upsertButtonComponent = cloneDeep(component as UpsertComponent<'button'>);
+						break;
+					case 'card':
+						$reportMaker.upsertCardComponent = cloneDeep(component as UpsertComponent<'card'>);
+						break;
+					case 'table':
+						$reportMaker.upsertTableComponent = cloneDeep(component as UpsertComponent<'table'>);
+						break;
+				}
+			},
+			deleteFn: () => reportMaker.deleteComponent(key, component.id)
+		}))
 	);
 </script>
 

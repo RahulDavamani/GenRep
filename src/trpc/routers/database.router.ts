@@ -65,8 +65,8 @@ export const databaseRouter = router({
 									? { update: { ...connectionOption } }
 									: { create: { ...connectionOption } }
 								: dbConnectionOption
-								? { delete: true }
-								: undefined
+								  ? { delete: true }
+								  : undefined
 						}
 					})
 					.catch(prismaErrorHandler);

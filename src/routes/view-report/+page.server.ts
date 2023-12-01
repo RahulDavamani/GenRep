@@ -4,13 +4,13 @@ import { trpcServerErrorHandler } from '../../trpc/trpcErrorhandler.js';
 
 export const load = async (event) => {
 	const id = event.url.searchParams.get('id');
-	const apiKey = event.url.searchParams.get('apiKey');
+	const token = event.url.searchParams.get('token');
 
-	if (!id || !apiKey) throw error(400, 'Bad Request');
+	if (!id || !token) throw error(400, 'Bad Request');
 
 	const trpc = await createCaller(event);
 
-	const { report } = await trpc.report.getReportView({ id, apiKey }).catch(trpcServerErrorHandler);
+	const { report } = await trpc.report.getReportView({ id, token }).catch(trpcServerErrorHandler);
 
 	return { report };
 };

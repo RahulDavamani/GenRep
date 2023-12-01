@@ -11,7 +11,7 @@
 
 	const updateTheme = async (theme: string) => {
 		ui.setTheme(theme);
-		await trpc($page).theme.update.query({ theme }).catch(trpcClientErrorHandler);
+		await trpc($page).user.updateTheme.query({ theme }).catch(trpcClientErrorHandler);
 		invalidateAll();
 	};
 </script>

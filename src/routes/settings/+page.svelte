@@ -3,6 +3,7 @@
 	import ApiKeys from './components/ApiKeys.svelte';
 	import Themes from './components/Themes.svelte';
 	import Databases from './components/Databases.svelte';
+	import ValidateTokenUrl from './components/ValidateTokenURL.svelte';
 </script>
 
 <div class="container mx-auto rounded-box shadow py-4">
@@ -18,6 +19,7 @@
 	<div class="divider mt-2" />
 
 	<div class="px-8">
+		<ValidateTokenUrl />
 		<Databases />
 		<ApiKeys />
 		<Themes />

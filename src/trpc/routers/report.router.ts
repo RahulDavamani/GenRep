@@ -9,6 +9,8 @@ import {
 	prismaUpsertComponents,
 	type ServerFn
 } from '../../lib/data/componentTypes';
+import { TRPCError } from '@trpc/server';
+import { getErrorCode } from '$lib/data/errorCodes';
 
 export const reportRouter = router({
 	getAll: authProcedure.query(async ({ ctx: { session } }) => {
@@ -111,9 +113,8 @@ export const reportRouter = router({
 	),
 
 	getReportView: procedure
-		.input(z.object({ id: z.string().min(1), apiKey: z.string().min(1) }))
-		.query(async ({ input: { id, apiKey } }) => {
-			await prisma.aPIKey.findUniqueOrThrow({ where: { id: apiKey } }).catch(prismaErrorHandler);
+		.input(z.object({ id: z.string().min(1), token: z.string().min(1) }))
+		.query(async ({ input: { id, token } }) => {
 			const report = await prisma.report
 				.findUniqueOrThrow({
 					where: { id },
@@ -123,6 +124,36 @@ export const reportRouter = router({
 					}
 				})
 				.catch(prismaErrorHandler);
+
+			const { validateTokenUrl } = await prisma.user
+				.findUniqueOrThrow({
+					where: { id: report.userId },
+					select: { validateTokenUrl: true }
+				})
+				.catch(prismaErrorHandler);
+
+			const res = await fetch(validateTokenUrl, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					AccessKey: '52CB3A03-1F50-41E5-9A24-BD8843B4403A',
+					Token: token
+				})
+			});
+			const { Message, ...queryParams } = (await res.json()) as { Message: string; [k: string]: unknown };
+
+			if (res.status !== 200)
+				throw new TRPCError({
+					code: getErrorCode({ http: res.status }).trpc,
+					message: Message
+				});
+
+			report.datasets.forEach((d, di) =>
+				d.queryParams.forEach((q, qi) => {
+					const i = Object.keys(queryParams).findIndex((k) => k === q.key);
+					if (i > 1) report.datasets[di].queryParams[qi].value = String(Object.values(queryParams)[i]);
+				})
+			);
 			return { report };
 		})
 });

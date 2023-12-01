@@ -19,10 +19,17 @@ export interface ErrorCode {
 	prisma: string[];
 }
 
-export const getErrorCode = ({ http, trpc, prisma }: { http?: number; trpc?: string; prisma?: string }) => {
-	if (http) return errorCodes.find((ec) => ec.http == http);
-	if (trpc) return errorCodes.find((ec) => ec.trpc == trpc);
-	if (prisma) return errorCodes.find((ec) => ec.prisma.includes(prisma));
+const internalErrorCode: ErrorCode = {
+	http: 500,
+	trpc: 'INTERNAL_SERVER_ERROR',
+	prisma: []
+};
+
+export const getErrorCode = ({ http, trpc, prisma }: { http?: number; trpc?: string; prisma?: string }): ErrorCode => {
+	if (http) return errorCodes.find((ec) => ec.http == http) ?? internalErrorCode;
+	if (trpc) return errorCodes.find((ec) => ec.trpc == trpc) ?? internalErrorCode;
+	if (prisma) return errorCodes.find((ec) => ec.prisma.includes(prisma)) ?? internalErrorCode;
+	return internalErrorCode;
 };
 
 export const errorCodes: ErrorCode[] = [

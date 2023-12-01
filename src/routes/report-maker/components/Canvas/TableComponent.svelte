@@ -1,13 +1,12 @@
 <script lang="ts">
 	import type { UpsertTableComponent } from '$lib/reportSchema';
-	import { afterUpdate, onDestroy, onMount } from 'svelte';
+	import { afterUpdate, onMount } from 'svelte';
 	import { reportMaker } from '../../../../stores/report-maker.store';
 	import { componentInteract } from '$lib/client/interact';
 	import { getComponentClass, getComponentStyle } from '$lib/data/componentTypes';
 	import jq from 'jquery';
 	import 'datatables.net-dt/css/jquery.dataTables.css';
 	import 'datatables.net-dt';
-	import { ui } from '../../../../stores/ui.store';
 
 	export let view = false;
 	export let tableComponent: UpsertTableComponent;
@@ -48,7 +47,7 @@
 		);
 
 	afterUpdate(() => jq(`#${id}_table`).DataTable({ searching, ordering, paging, info }));
-	$: ((data) => jq(`#${id}_table`).DataTable().destroy())(data);
+	$: ((data) => data && jq(`#${id}_table`).DataTable().destroy())(data);
 
 	let innerWidth = 0;
 	let element: HTMLDivElement | undefined;
