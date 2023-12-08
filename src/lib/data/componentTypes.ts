@@ -74,7 +74,7 @@ export type prismaComponentFn = (
 
 // Variables & Methods
 export const defaultNewComponent: { id: string; name: string; properties: UpsertProperties } = {
-	id: nanoid(),
+	id: '',
 	name: '',
 	properties: {
 		id: nanoid(),

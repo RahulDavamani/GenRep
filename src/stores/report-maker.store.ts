@@ -174,7 +174,10 @@ export const reportMaker = (() => {
 		update((state) => ({
 			...state,
 			showComponentList: false,
-			[componentTypes[type].labels.upsertKeyComponent]: componentTypes[type].client.newComponent
+			[componentTypes[type].labels.upsertKeyComponent]: cloneDeep({
+				...componentTypes[type].client.newComponent,
+				id: nanoid()
+			})
 		}));
 
 	const submitComponent = (type: ComponentKey) =>
@@ -187,7 +190,7 @@ export const reportMaker = (() => {
 			if (!upsertComponent) return state;
 
 			const i = components.findIndex((c) => c.id === upsertComponent?.id);
-			if (i < 0) components[components.length] = upsertComponent;
+			if (i <= 0) components[components.length] = upsertComponent;
 			else components[i] = upsertComponent;
 
 			return {
